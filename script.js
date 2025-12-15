@@ -18,13 +18,20 @@ const db = getDatabase(app);
 
 // ================= LOGIKA GAS =================
 function jenisGas(ppm){
-  if (ppm < 400)  return "Udara Bersih";
-  if (ppm < 800)  return "CO₂ Tinggi (Aktivitas Manusia)";
-  if (ppm < 1200) return "VOC / Alkohol (Parfum, Sanitizer)";
-  if (ppm < 2000) return "Amonia (NH₃) / Bau Kimia";
-  return "Asap / Gas Berbahaya";
-}
+  if (ppm < 400)
+    return "Udara Bersih";
 
+  if (ppm < 800)
+    return "CO₂ Rendah (Aktivitas Manusia)";
+
+  if (ppm < 1200)
+    return "VOC Ringan / Alkohol";
+
+  if (ppm < 2000)
+    return "VOC / NH₃ Sedang";
+
+  return "VOC / CO₂ / NH₃ Tinggi (Campuran Gas)";
+}
 function statusUdara(ppm){
   if (ppm < 400)  return "BAIK";
   if (ppm < 800)  return "SEDANG";
@@ -62,3 +69,4 @@ onValue(ref(db, "sensor"), (snap)=>{
     status === "SEDANG" ? "orange" :
     status === "BURUK" ? "red" : "purple";
 });
+
