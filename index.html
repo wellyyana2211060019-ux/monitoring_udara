@@ -1,95 +1,58 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Air Quality Monitoring — Dashboard</title>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Air Quality Monitoring Dashboard</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-  <header class="topbar">
-    <div class="brand">☁️ Air Quality Monitoring</div>
-    <nav class="nav">
-      <a href="#" class="nav-link">Dashboard</a>
-      <a href="#" class="nav-link">History</a>
-      <a href="#" class="nav-link">Settings</a>
-    </nav>
-  </header>
+  <div class="topbar">
+    <div class="brand">AIR QUALITY MONITORING</div>
+  </div>
 
-  <main class="main">
-    <!-- top cards -->
-    <section class="cards">
-      <div class="card neon" id="card-temp">
-        <div class="card-title">Temperature</div>
-        <div class="card-value" id="tempValue">-- °C</div>
+  <div class="main">
+
+    <div class="cards">
+
+      <div class="card neon">
+        <div class="card-title">SUHU</div>
+        <div class="card-value" id="tempValue">- °C</div>
       </div>
 
-      <div class="card neon" id="card-hum">
-        <div class="card-title">Kelembaban</div>
-        <div class="card-value" id="humValue">-- %</div>
+      <div class="card neon">
+        <div class="card-title">KELEMBAPAN</div>
+        <div class="card-value" id="humValue">- %</div>
       </div>
 
-      <div class="card neon" id="card-gas">
-        <div class="card-title">Gas (MQ135)</div>
-        <div class="card-value" id="gasValue">--</div>
+      <div class="card neon">
+        <div class="card-title">DEBU</div>
+        <div class="card-value" id="dustValue">- µg/m³</div>
       </div>
 
-      <div class="card neon" id="card-dust">
-        <div class="card-title">PM2.5</div>
-        <div class="card-value" id="dustValue">-- μg/m³</div>
-      </div>
-    </section>
-
-    <!-- status big -->
-    <section class="statusBanner">
-      <div id="airStatus" class="statusText">AIR QUALITY STATUS: --</div>
-    </section>
-
-    <!-- chart -->
-    <section class="chartArea">
-      <h3>Air Quality Trends</h3>
-      <canvas id="trendChart"></canvas>
-    </section>
-
-    <!-- history table + controls -->
-    <section class="historyArea">
-      <div class="historyHeader">
-        <h3>History Log (session)</h3>
-        <div>
-          <button id="btnExport">Export CSV</button>
-          <button id="btnClear">Clear</button>
-        </div>
+      <div class="card neon">
+        <div class="card-title">GAS (PPM)</div>
+        <div class="card-value" id="gasValue">-</div>
       </div>
 
-      <div class="tableWrap">
-        <table id="historyTable">
-          <thead>
-            <tr>
-              <th>Waktu</th>
-              <th>Temp (°C)</th>
-              <th>Hum (%)</th>
-              <th>Gas</th>
-              <th>PM2.5</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <!-- 🔥 CARD BARU JENIS GAS -->
+      <div class="card neon gas-card">
+        <div class="card-title">JENIS GAS TERDETEKSI</div>
+        <div class="card-value" id="gasType">-</div>
       </div>
-    </section>
-  </main>
 
-  <footer class="footer">
-    <small>Built for your ESP8266 → Firebase (REST)</small>
-  </footer>
+    </div>
 
-  <!-- Script (data + chart) -->
-  <script src="script.js"></script>
+    <div class="statusBanner">
+      <div class="statusText" id="airStatus">
+        AIR QUALITY STATUS : -
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="script.js"></script>
 </body>
 </html>
