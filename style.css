@@ -1,6 +1,4 @@
 :root{
-  --dark:#0f1724;
-  --card:#0b1220;
   --neon:#44f0e6;
   --muted:#9aa3ad;
 }
@@ -8,9 +6,8 @@
 body{
   margin:0;
   font-family:"Segoe UI", Arial, sans-serif;
-  background:linear-gradient(#3b3f46, #1b1d22);
+  background:linear-gradient(#3b3f46,#1b1d22);
   color:#e6eef0;
-  min-height:100vh;
 }
 
 .topbar{
@@ -20,24 +17,11 @@ body{
   background:#111318;
 }
 
-.brand{
-  font-weight:700;
-  color:#dff7f4;
-}
+.brand{font-weight:700;color:#dff7f4;}
 
-.nav{
-  display:flex;
-  gap:14px;
-}
-
-.nav-link{
-  color:#9aa3ad;
-  text-decoration:none;
-}
-
-.nav-link:hover{
-  color:var(--neon);
-}
+.nav{display:flex;gap:14px;}
+.nav-link{color:var(--muted);text-decoration:none;}
+.nav-link:hover{color:var(--neon);}
 
 .main{
   padding:22px;
@@ -55,31 +39,21 @@ body{
   position:relative;
   background:linear-gradient(180deg,#0f1b25,#071015);
   padding:18px;
-  border-radius:12px;
+  border-radius:14px;
   box-shadow:0 6px 20px rgba(0,0,0,.6);
 }
 
-.card-title{
-  font-size:14px;
-  color:var(--muted);
-}
-
-.card-value{
-  font-size:28px;
-  font-weight:700;
-  margin-top:8px;
-  color:#dff7f4;
-}
+.card-title{font-size:14px;color:var(--muted);}
+.card-value{font-size:28px;font-weight:700;margin-top:6px;}
 
 .neon::after{
   content:"";
   position:absolute;
   inset:2px;
-  border-radius:12px;
+  border-radius:14px;
   box-shadow:0 0 18px rgba(68,240,230,.25);
 }
 
-/* GAS */
 .gas-card .card-value{
   font-size:18px;
   color:var(--neon);
@@ -88,7 +62,7 @@ body{
 
 /* STATUS */
 .statusBanner{
-  margin:22px 0;
+  margin:24px 0;
   display:flex;
   justify-content:center;
 }
@@ -97,29 +71,29 @@ body{
   width:80%;
   background:#0a1014;
   padding:18px;
-  border-radius:12px;
+  border-radius:14px;
   text-align:center;
   font-size:20px;
   font-weight:700;
 }
 
-/* GRAFIK */
+/* GRAFIK MIRIP CONTOH */
 .chartArea{
   margin-top:30px;
-  background:linear-gradient(180deg,#0f1b25,#071015);
-  padding:20px;
-  border-radius:14px;
+  background:linear-gradient(180deg,#1a1f27,#0e1116);
+  padding:22px;
+  border-radius:18px;
+  box-shadow:0 8px 28px rgba(0,0,0,.6);
+  border:1px solid rgba(255,255,255,.06);
 }
 
 .chartArea h3{
-  text-align:center;
-  color:#9ff3ec;
+  margin-bottom:10px;
+  color:#c7f9f1;
 }
 
-/* FOOTER */
 .footer{
   text-align:center;
   padding:12px;
-  color:#9aa3ad;
+  color:var(--muted);
 }
-
