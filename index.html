@@ -4,55 +4,106 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Air Quality Monitoring Dashboard</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <div class="topbar">
-    <div class="brand">AIR QUALITY MONITORING</div>
-  </div>
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="brand">☁️ AIR QUALITY MONITORING</div>
+    <nav class="nav">
+      <a href="#" class="nav-link">Dashboard</a>
+      <a href="#" class="nav-link">History</a>
+      <a href="#" class="nav-link">Settings</a>
+    </nav>
+  </header>
 
-  <div class="main">
+  <main class="main">
 
-    <div class="cards">
+    <!-- SENSOR CARDS -->
+    <section class="cards">
 
       <div class="card neon">
-        <div class="card-title">SUHU</div>
-        <div class="card-value" id="tempValue">- °C</div>
+        <div class="card-title">Suhu</div>
+        <div class="card-value" id="tempValue">-- °C</div>
       </div>
 
       <div class="card neon">
-        <div class="card-title">KELEMBAPAN</div>
-        <div class="card-value" id="humValue">- %</div>
+        <div class="card-title">Kelembapan</div>
+        <div class="card-value" id="humValue">-- %</div>
       </div>
 
       <div class="card neon">
-        <div class="card-title">DEBU</div>
-        <div class="card-value" id="dustValue">- µg/m³</div>
+        <div class="card-title">Gas (PPM)</div>
+        <div class="card-value" id="gasValue">--</div>
       </div>
 
       <div class="card neon">
-        <div class="card-title">GAS (PPM)</div>
-        <div class="card-value" id="gasValue">-</div>
+        <div class="card-title">Debu (PM2.5)</div>
+        <div class="card-value" id="dustValue">-- μg/m³</div>
       </div>
 
-      <!-- 🔥 CARD BARU JENIS GAS -->
       <div class="card neon gas-card">
-        <div class="card-title">JENIS GAS TERDETEKSI</div>
+        <div class="card-title">Jenis Gas</div>
         <div class="card-value" id="gasType">-</div>
       </div>
 
-    </div>
+    </section>
 
-    <div class="statusBanner">
-      <div class="statusText" id="airStatus">
-        AIR QUALITY STATUS : -
+    <!-- STATUS -->
+    <section class="statusBanner">
+      <div id="airStatus" class="statusText">
+        AIR QUALITY STATUS : --
       </div>
-    </div>
+    </section>
 
-  </div>
+    <!-- GRAFIK -->
+    <section class="chartArea">
+      <h3>Grafik Tren Kualitas Udara</h3>
+      <canvas id="trendChart"></canvas>
+    </section>
 
-  <script type="module" src="script.js"></script>
+    <!-- HISTORY -->
+    <section class="historyArea">
+      <div class="historyHeader">
+        <h3>History Log</h3>
+        <div>
+          <button id="btnExport">Export CSV</button>
+          <button id="btnClear">Clear</button>
+        </div>
+      </div>
+
+      <div class="tableWrap">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>Waktu</th>
+              <th>Suhu</th>
+              <th>Kelembapan</th>
+              <th>Gas</th>
+              <th>PM2.5</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <small>Built for ESP8266 / ESP32 IoT Monitoring</small>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script src="script.js"></script>
+
 </body>
 </html>
