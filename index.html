@@ -14,50 +14,92 @@
 <header class="topbar">
   <div class="brand">🌿 AIR QUALITY MONITORING</div>
   <nav class="nav">
-    <a href="#" class="nav-link">Dashboard</a>
+    <a href="#" class="nav-link active">Dashboard</a>
     <a href="#" class="nav-link">History</a>
     <a href="#" class="nav-link">Settings</a>
   </nav>
 </header>
 
 <main class="main">
-  <section class="cards">
-    <div class="card neon">
-      <div class="card-title">Temperature</div>
-      <div class="card-value" id="tempValue">-- °C</div>
-    </div>
 
-    <div class="card neon">
-      <div class="card-title">Humidity</div>
-      <div class="card-value" id="humValue">-- %</div>
-    </div>
+  <!-- ================= DASHBOARD ================= -->
+  <section id="page-dashboard" class="page active">
 
-    <div class="card neon">
-      <div class="card-title">Gas</div>
-      <div class="card-value" id="gasValue">-- PPM</div>
-    </div>
+    <section class="cards">
+      <div class="card neon">
+        <div class="card-title">Temperature</div>
+        <div class="card-value" id="tempValue">-- °C</div>
+      </div>
 
-    <div class="card neon">
-      <div class="card-title">Dust / PM2.5</div>
-      <div class="card-value" id="dustValue">-- µg/m³</div>
-    </div>
+      <div class="card neon">
+        <div class="card-title">Humidity</div>
+        <div class="card-value" id="humValue">-- %</div>
+      </div>
 
-    <div class="card neon gas-card">
-      <div class="card-title">Detected Gas</div>
-      <div class="card-value" id="gasType">-</div>
-    </div>
+      <div class="card neon">
+        <div class="card-title">Gas</div>
+        <div class="card-value" id="gasValue">-- PPM</div>
+      </div>
+
+      <div class="card neon">
+        <div class="card-title">Dust / PM2.5</div>
+        <div class="card-value" id="dustValue">-- µg/m³</div>
+      </div>
+
+      <div class="card neon gas-card">
+        <div class="card-title">Detected Gas</div>
+        <div class="card-value" id="gasType">-</div>
+      </div>
+    </section>
+
+    <section class="statusBanner">
+      <div class="statusText" id="airStatus">
+        STATUS : --
+      </div>
+    </section>
+
+    <section class="chartArea">
+      <h3>Air Quality Trends</h3>
+      <canvas id="trendChart"></canvas>
+    </section>
+
   </section>
 
-  <section class="statusBanner">
-    <div class="statusText" id="airStatus">
-      STATUS : --
-    </div>
+  <!-- ================= HISTORY ================= -->
+  <section id="page-history" class="page">
+    <h2>History Data Sensor</h2>
+
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Waktu</th>
+          <th>Suhu</th>
+          <th>Hum</th>
+          <th>Gas</th>
+          <th>Debu</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="historyBody">
+        <tr>
+          <td colspan="6">Data history akan muncul di sini</td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 
-  <section class="chartArea">
-    <h3>Air Quality Trends</h3>
-    <canvas id="trendChart"></canvas>
+  <!-- ================= SETTINGS ================= -->
+  <section id="page-settings" class="page">
+    <h2>Settings</h2>
+    <p>Pengaturan sistem berasal dari ESP8266</p>
+
+    <ul>
+      <li>⏱ Interval update: 5 detik</li>
+      <li>📡 Mode realtime Firebase</li>
+      <li>🟢 LED indikator aktif</li>
+    </ul>
   </section>
+
 </main>
 
 <footer class="footer">
@@ -67,4 +109,3 @@
 <script type="module" src="script.js"></script>
 </body>
 </html>
-
