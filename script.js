@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, onValue, query, limitToLast } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 /* ================= FIREBASE ================= */
 const firebaseConfig = {
@@ -38,8 +39,7 @@ function mapStatusFirebase(status){
 }
 
 function updateCardStatus(status){
-  const cards = document.querySelectorAll(".card");
-  cards.forEach(card=>{
+  document.querySelectorAll(".card").forEach(card=>{
     card.classList.remove(
       "status-healthy",
       "status-moderate",
@@ -48,9 +48,9 @@ function updateCardStatus(status){
     );
 
     if(status === "HEALTHY") card.classList.add("status-healthy");
-    else if(status === "MODERATE") card.classList.add("status-moderate");
-    else if(status === "UNHEALTHY") card.classList.add("status-unhealthy");
-    else if(status === "DANGEROUS") card.classList.add("status-danger");
+    if(status === "MODERATE") card.classList.add("status-moderate");
+    if(status === "UNHEALTHY") card.classList.add("status-unhealthy");
+    if(status === "DANGEROUS") card.classList.add("status-danger");
   });
 }
 
@@ -64,30 +64,24 @@ const airStatus = document.getElementById("airStatus");
 
 /* ================= CHART ================= */
 const ctx = document.getElementById("trendChart").getContext("2d");
-
 const gradGas = ctx.createLinearGradient(0,0,0,200);
 gradGas.addColorStop(0,"rgba(255,120,120,.4)");
 gradGas.addColorStop(1,"rgba(255,120,120,0)");
 
 const chart = new Chart(ctx,{
   type:"line",
-  data:{
-    labels:[],
-    datasets:[{
-      label:"Gas (PPM)",
-      data:[],
-      borderColor:"#ff7b7b",
-      backgroundColor:gradGas,
-      fill:true,
-      tension:.4,
-      pointRadius:3
-    }]
-  },
+  data:{ labels:[], datasets:[{
+    label:"Gas (PPM)",
+    data:[],
+    borderColor:"#ff7b7b",
+    backgroundColor:gradGas,
+    fill:true,
+    tension:.4,
+    pointRadius:3
+  }]},
   options:{
     responsive:true,
-    plugins:{
-      legend:{labels:{color:"#e0f2f1"}}
-    },
+    plugins:{ legend:{labels:{color:"#e0f2f1"}} },
     scales:{
       x:{ticks:{color:"#b0bec5"}},
       y:{ticks:{color:"#b0bec5"}}
@@ -106,28 +100,21 @@ function updateChart(time,gas){
   chart.update();
 }
 
-/* ================= REALTIME FIREBASE ================= */
+/* ================= DASHBOARD ================= */
 onValue(ref(db,"sensor"),snap=>{
   const d = snap.val();
   if(!d) return;
 
-  const t = Number(d.temperature);
-  const h = Number(d.humidity);
-  const p = Number(d.dust);
   const gasNum = Math.floor(Number(d.gas));
-
-  tempValue.textContent = t.toFixed(1)+" °C";
-  humValue.textContent  = h.toFixed(0)+" %";
-  gasValue.textContent  = gasNum+" PPM";
-  dustValue.textContent = p.toFixed(1)+" µg/m³";
-
-  gasType.textContent = jenisGas(gasNum);
-
-  /* 🔥 STATUS DIAMBIL LANGSUNG DARI FIREBASE */
   const status = mapStatusFirebase(d.status);
 
-  airStatus.textContent = "STATUS : " + status;
+  tempValue.textContent = Number(d.temperature).toFixed(1)+" °C";
+  humValue.textContent  = Number(d.humidity).toFixed(0)+" %";
+  gasValue.textContent  = gasNum+" PPM";
+  dustValue.textContent = Number(d.dust).toFixed(1)+" µg/m³";
+  gasType.textContent   = jenisGas(gasNum);
 
+  airStatus.textContent = "AIR QUALITY STATUS : " + status;
   airStatus.style.background =
     status==="HEALTHY"?"#1b5e20":
     status==="MODERATE"?"#f9a825":
@@ -138,25 +125,44 @@ onValue(ref(db,"sensor"),snap=>{
   updateChart(new Date().toLocaleTimeString(), gasNum);
 });
 
-console.log("SCRIPT BERHASIL JALAN");
-/* ================= NAVIGATION MENU ================= */
+/* ================= HISTORY ================= */
+const historyBody = document.getElementById("historyBody");
+
+if(historyBody){
+  const q = query(ref(db,"history"), limitToLast(20));
+  onValue(q,snap=>{
+    historyBody.innerHTML="";
+    snap.forEach(child=>{
+      const d = child.val();
+      const row = `
+        <tr>
+          <td>${new Date(d.timestamp*1000).toLocaleString()}</td>
+          <td>${d.temperature} °C</td>
+          <td>${d.humidity} %</td>
+          <td>${d.gas} PPM</td>
+          <td>${mapStatusFirebase(d.status)}</td>
+        </tr>`;
+      historyBody.innerHTML = row + historyBody.innerHTML;
+    });
+  });
+}
+
+/* ================= NAVIGATION ================= */
 const navLinks = document.querySelectorAll(".nav-link");
 const pages = document.querySelectorAll(".page");
 
-navLinks.forEach(link => {
-  link.addEventListener("click", e => {
+navLinks.forEach(link=>{
+  link.addEventListener("click",e=>{
     e.preventDefault();
 
-    const target = link.textContent.toLowerCase(); 
-    // dashboard / history / settings
+    const target = link.textContent.toLowerCase();
 
-    pages.forEach(p => p.classList.remove("active"));
+    pages.forEach(p=>p.classList.remove("active"));
     document.getElementById(`page-${target}`).classList.add("active");
 
-    navLinks.forEach(l => l.classList.remove("active"));
+    navLinks.forEach(l=>l.classList.remove("active"));
     link.classList.add("active");
   });
 });
 
-
-
+console.log("SCRIPT DASHBOARD BERHASIL JALAN");
