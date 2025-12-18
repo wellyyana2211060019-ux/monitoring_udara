@@ -126,7 +126,7 @@ onValue(ref(db,"sensor"),snap=>{
   /* 🔥 STATUS DIAMBIL LANGSUNG DARI FIREBASE */
   const status = mapStatusFirebase(d.status);
 
-  airStatus.textContent = "AIR QUALITY STATUS : " + status;
+  airStatus.textContent = "STATUS : " + status;
 
   airStatus.style.background =
     status==="HEALTHY"?"#1b5e20":
@@ -139,3 +139,4 @@ onValue(ref(db,"sensor"),snap=>{
 });
 
 console.log("SCRIPT BERHASIL JALAN");
+
