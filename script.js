@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* LOGIKA GAS */
+/* LOGIKA */
 function jenisGas(ppm){
   if(ppm < 400) return "Healthy Air";
   if(ppm < 800) return "Low CO₂";
@@ -29,27 +29,13 @@ function statusUdara(ppm){
   return "DANGEROUS";
 }
 function updateCardStatus(status){
-  const cards = document.querySelectorAll(".card");
-
-  cards.forEach(card=>{
-    card.classList.remove(
-      "status-healthy",
-      "status-moderate",
-      "status-unhealthy"
-    );
-
-    if(status === "HEALTHY"){
-      card.classList.add("status-healthy");
-    }
-    else if(status === "MODERATE"){
-      card.classList.add("status-moderate");
-    }
-    else{
-      card.classList.add("status-unhealthy");
-    }
+  document.querySelectorAll(".card").forEach(card=>{
+    card.classList.remove("status-healthy","status-moderate","status-unhealthy");
+    if(status==="HEALTHY") card.classList.add("status-healthy");
+    else if(status==="MODERATE") card.classList.add("status-moderate");
+    else card.classList.add("status-unhealthy");
   });
 }
-
 
 /* ELEMENT */
 const tempValue = document.getElementById("tempValue");
@@ -59,71 +45,22 @@ const dustValue = document.getElementById("dustValue");
 const gasType   = document.getElementById("gasType");
 const airStatus = document.getElementById("airStatus");
 
-/* CHART STYLE MIRIP CONTOH */
+/* CHART */
 const ctx = document.getElementById("trendChart").getContext("2d");
-
-const gradTemp = ctx.createLinearGradient(0,0,0,200);
-gradTemp.addColorStop(0,"rgba(63,255,216,.4)");
-gradTemp.addColorStop(1,"rgba(63,255,216,0)");
-
-const gradHum = ctx.createLinearGradient(0,0,0,200);
-gradHum.addColorStop(0,"rgba(100,150,255,.4)");
-gradHum.addColorStop(1,"rgba(100,150,255,0)");
-
-const gradGas = ctx.createLinearGradient(0,0,0,200);
-gradGas.addColorStop(0,"rgba(255,120,120,.4)");
-gradGas.addColorStop(1,"rgba(255,120,120,0)");
 
 const chart = new Chart(ctx,{
   type:"line",
   data:{
     labels:[],
     datasets:[
-      {
-        label:"Temperature – Last 24 Hours",
-        data:[],
-        borderColor:"#3fffd8",
-        backgroundColor:gradTemp,
-        fill:true,
-        tension:.45,
-        pointRadius:3
-      },
-      {
-        label:"Humidity – Last 24 Hours",
-        data:[],
-        borderColor:"#6fa8ff",
-        backgroundColor:gradHum,
-        fill:true,
-        tension:.45,
-        pointRadius:3
-      },
-      {
-        label:"Gas – Last 24 Hours",
-        data:[],
-        borderColor:"#ff7b7b",
-        backgroundColor:gradGas,
-        fill:true,
-        tension:.45,
-        pointRadius:3
-      }
+      { label:"Temperature", data:[], borderColor:"#3fffd8", tension:.4 },
+      { label:"Humidity", data:[], borderColor:"#6fa8ff", tension:.4 },
+      { label:"Gas", data:[], borderColor:"#ff7b7b", tension:.4 }
     ]
   },
-  options:{
-    responsive:true,
-    plugins:{
-      legend:{
-        position:"top",
-        labels:{color:"#dff7f4",usePointStyle:true}
-      }
-    },
-    scales:{
-      x:{ticks:{color:"#9aa3ad"},grid:{display:false}},
-      y:{ticks:{color:"#9aa3ad"},grid:{color:"rgba(255,255,255,.05)"}}
-    }
-  }
+  options:{ responsive:true }
 });
 
-/* UPDATE CHART */
 function updateChart(time,t,h,g){
   chart.data.labels.push(time);
   chart.data.datasets[0].data.push(t);
@@ -136,81 +73,30 @@ function updateChart(time,t,h,g){
   }
   chart.update();
 }
-let chartData = [];
-let chartLabels = [];
-/* REALTIME FIREBASE */
-onValue(ref(db,"sensor"),snap=>{
+
+/* REALTIME */
+onValue(ref(db,"sensor"), snap=>{
   const d = snap.val();
   if(!d) return;
-  const avgQuality =
-(
-  gasNum +
-  Number(d.dust) +
-  Number(d.temperature) +
-  Number(d.humidity)
-) / 4;
-  const time = new Date().toLocaleTimeString();
-
-chartLabels.push(time);
-chartData.push(avgQuality.toFixed(1));
-
-if(chartData.length > 10){
-  chartData.shift();
-  chartLabels.shift();
-}
-
-trendChart.update();
 
   const t = Number(d.temperature);
   const h = Number(d.humidity);
+  const p = Number(d.dust);
+
   const gasRaw = Number(d.gas);
   const gas = Math.floor(gasRaw).toString().slice(0,3);
-  const gasNum = Number(gas); // dipakai untuk perhitungan
-  const p = Number(d.dust);
+  const gasNum = Number(gas);
 
   tempValue.textContent = t.toFixed(1)+" °C";
   humValue.textContent  = h.toFixed(0)+" %";
-  gasValue.textContent = gas + " PPM";
+  gasValue.textContent  = gas+" PPM";
   dustValue.textContent = p.toFixed(1)+" µg/m³";
 
-  gasType.textContent = jenisGas(g);
+  gasType.textContent = jenisGas(gasNum);
 
-  const s = statusUdara(g);
+  const s = statusUdara(gasNum);
   airStatus.textContent = "AIR QUALITY STATUS : "+s;
-  airStatus.style.background =
-    s==="HEALTHY"?"#1b5e20":
-    s==="MODERATE"?"#f9a825":
-    s==="UNHEALTHY"?"#c62828":"#6a1b9a";
+  updateCardStatus(s);
 
-  updateChart(new Date().toLocaleTimeString(),t,h,g);
+  updateChart(new Date().toLocaleTimeString(),t,h,gasNum);
 });
-const ctx = document.getElementById("trendChart").getContext("2d");
-
-const trendChart = new Chart(ctx,{
-  type:"line",
-  data:{
-    labels: chartLabels,
-    datasets:[{
-      label:"Average Air Quality",
-      data: chartData,
-      borderWidth:2,
-      tension:0.4,
-      fill:true
-    }]
-  },
-  options:{
-    responsive:true,
-    scales:{
-      y:{
-        beginAtZero:true,
-        ticks:{
-          stepSize:10
-        }
-      }
-    }
-  }
-});
-
-
-
-
