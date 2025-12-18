@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Air Quality Monitoring Dashboard</title>
 
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -24,8 +21,6 @@
 </header>
 
 <main class="main">
-
-  <!-- SENSOR CARDS -->
   <section class="cards">
     <div class="card neon">
       <div class="card-title">Temperature</div>
@@ -43,7 +38,7 @@
     </div>
 
     <div class="card neon">
-      <div class="card-title">Dust/PM2.5</div>
+      <div class="card-title">Dust / PM2.5</div>
       <div class="card-value" id="dustValue">-- µg/m³</div>
     </div>
 
@@ -53,19 +48,16 @@
     </div>
   </section>
 
-  <!-- STATUS -->
   <section class="statusBanner">
     <div class="statusText" id="airStatus">
       AIR QUALITY STATUS : --
     </div>
   </section>
 
-  <!-- GRAFIK -->
   <section class="chartArea">
     <h3>Air Quality Trends</h3>
     <canvas id="trendChart"></canvas>
   </section>
-
 </main>
 
 <footer class="footer">
@@ -75,4 +67,3 @@
 <script type="module" src="script.js"></script>
 </body>
 </html>
-
