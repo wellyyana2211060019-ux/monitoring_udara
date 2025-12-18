@@ -1,6 +1,7 @@
 :root{
   --neon:#44f0e6;
   --muted:#9aa3ad;
+  --bg-dark:#0e1116;
 }
 
 /* ================= GLOBAL ================= */
@@ -15,8 +16,10 @@ body{
 .topbar{
   display:flex;
   justify-content:space-between;
+  align-items:center;
   padding:14px 22px;
   background:#111318;
+  border-bottom:1px solid rgba(255,255,255,.06);
 }
 
 .brand{
@@ -24,16 +27,46 @@ body{
   color:#dff7f4;
 }
 
+/* ================= NAV ================= */
+
 .nav{
   display:flex;
-  gap:14px;
+  gap:16px;
 }
+
 .nav-link{
   color:var(--muted);
   text-decoration:none;
+  padding:6px 12px;
+  border-radius:8px;
+  transition:.25s;
 }
+
 .nav-link:hover{
   color:var(--neon);
+  background:rgba(68,240,230,.08);
+}
+
+.nav-link.active{
+  color:#0e1116;
+  background:var(--neon);
+  font-weight:700;
+}
+
+/* ================= PAGE SYSTEM ================= */
+
+.page{
+  display:none;
+  animation:fade .35s ease;
+}
+
+.page.active{
+  display:block;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(8px);}
+  to{opacity:1; transform:none;}
 }
 
 /* ================= LAYOUT ================= */
@@ -65,6 +98,7 @@ body{
   font-size:14px;
   color:var(--muted);
 }
+
 .card-value{
   font-size:28px;
   font-weight:700;
@@ -123,6 +157,85 @@ body{
   color:#c7f9f1;
 }
 
+/* ================= HISTORY ================= */
+
+.history-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:16px;
+  background:var(--bg-dark);
+  border-radius:14px;
+  overflow:hidden;
+}
+
+.history-table th,
+.history-table td{
+  padding:12px;
+  text-align:center;
+  font-size:14px;
+}
+
+.history-table thead{
+  background:#10161d;
+}
+
+.history-table th{
+  color:var(--neon);
+}
+
+.history-table tr:nth-child(even){
+  background:#0b0f14;
+}
+
+/* ================= SETTINGS ================= */
+
+.settings-box{
+  max-width:500px;
+  margin:auto;
+  background:linear-gradient(180deg,#111821,#0b1016);
+  padding:22px;
+  border-radius:18px;
+  box-shadow:0 8px 26px rgba(0,0,0,.6);
+}
+
+.settings-box h3{
+  text-align:center;
+  margin-bottom:18px;
+  color:var(--neon);
+}
+
+.settings-box label{
+  display:block;
+  margin-bottom:6px;
+  color:var(--muted);
+}
+
+.settings-box input,
+.settings-box select{
+  width:100%;
+  padding:10px;
+  margin-bottom:14px;
+  border-radius:10px;
+  border:none;
+  background:#0b1016;
+  color:#e6eef0;
+}
+
+.settings-box button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:var(--neon);
+  color:#0e1116;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.settings-box button:hover{
+  opacity:.85;
+}
+
 /* ================= FOOTER ================= */
 
 .footer{
@@ -133,7 +246,7 @@ body{
 
 /* ================= STATUS COLOR ================= */
 
-/* SEHAT */
+/* HEALTHY */
 .status-healthy{
   border:2px solid #4caf50 !important;
   box-shadow:
@@ -141,7 +254,7 @@ body{
     0 6px 20px rgba(0,0,0,.6);
 }
 
-/* SEDANG */
+/* MODERATE */
 .status-moderate{
   border:2px solid #fbc02d !important;
   box-shadow:
@@ -149,10 +262,18 @@ body{
     0 6px 20px rgba(0,0,0,.6);
 }
 
-/* BURUK */
+/* UNHEALTHY */
 .status-unhealthy{
   border:2px solid #e53935 !important;
   box-shadow:
     0 0 22px rgba(229,57,53,.45),
+    0 6px 20px rgba(0,0,0,.6);
+}
+
+/* DANGEROUS */
+.status-danger{
+  border:2px solid #6a1b9a !important;
+  box-shadow:
+    0 0 22px rgba(106,27,154,.45),
     0 6px 20px rgba(0,0,0,.6);
 }
