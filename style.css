@@ -97,3 +97,29 @@ body{
   padding:12px;
   color:var(--muted);
 }
+/* ================= STATUS COLOR ================= */
+
+/* SEHAT */
+.status-healthy{
+  border:2px solid #4caf50 !important;
+}
+.status-healthy::after{
+  box-shadow:0 0 22px rgba(76,175,80,.5);
+}
+
+/* SEDANG */
+.status-moderate{
+  border:2px solid #fbc02d !important;
+}
+.status-moderate::after{
+  box-shadow:0 0 22px rgba(251,192,45,.5);
+}
+
+/* BURUK */
+.status-unhealthy{
+  border:2px solid #e53935 !important;
+}
+.status-unhealthy::after{
+  box-shadow:0 0 22px rgba(229,57,53,.5);
+}
+
