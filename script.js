@@ -28,6 +28,28 @@ function statusUdara(ppm){
   if(ppm < 1500) return "UNHEALTHY";
   return "DANGEROUS";
 }
+function updateCardStatus(status){
+  const cards = document.querySelectorAll(".card");
+
+  cards.forEach(card=>{
+    card.classList.remove(
+      "status-healthy",
+      "status-moderate",
+      "status-unhealthy"
+    );
+
+    if(status === "HEALTHY"){
+      card.classList.add("status-healthy");
+    }
+    else if(status === "MODERATE"){
+      card.classList.add("status-moderate");
+    }
+    else{
+      card.classList.add("status-unhealthy");
+    }
+  });
+}
+
 
 /* ELEMENT */
 const tempValue = document.getElementById("tempValue");
@@ -141,3 +163,4 @@ onValue(ref(db,"sensor"),snap=>{
 
   updateChart(new Date().toLocaleTimeString(),t,h,g);
 });
+
