@@ -3,7 +3,6 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 
 /* FIREBASE */
 const firebaseConfig = {
-  secret:"pUiWkItaGg7wSAuEU5U6swbnRLb9QiFId4UObTwG",
   apiKey: "AIzaSyDNx_YJ8sXo-PQzBhwTCoeLeaymaN_Wifc",
   authDomain: "airqualitymonitoring-28fa9.firebaseapp.com",
   databaseURL: "https://airqualitymonitoring-28fa9-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -211,6 +210,7 @@ const trendChart = new Chart(ctx,{
     }
   }
 });
+
 
 
 
