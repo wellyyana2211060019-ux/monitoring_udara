@@ -136,20 +136,41 @@ function updateChart(time,t,h,g){
   }
   chart.update();
 }
-
+let chartData = [];
+let chartLabels = [];
 /* REALTIME FIREBASE */
 onValue(ref(db,"sensor"),snap=>{
   const d = snap.val();
   if(!d) return;
+  const avgQuality =
+(
+  gasNum +
+  Number(d.dust) +
+  Number(d.temperature) +
+  Number(d.humidity)
+) / 4;
+  const time = new Date().toLocaleTimeString();
+
+chartLabels.push(time);
+chartData.push(avgQuality.toFixed(1));
+
+if(chartData.length > 10){
+  chartData.shift();
+  chartLabels.shift();
+}
+
+trendChart.update();
 
   const t = Number(d.temperature);
   const h = Number(d.humidity);
-  const g = Number(d.gas);
+  const gasRaw = Number(d.gas);
+  const gas = Math.floor(gasRaw).toString().slice(0,3);
+  const gasNum = Number(gas); // dipakai untuk perhitungan
   const p = Number(d.dust);
 
   tempValue.textContent = t.toFixed(1)+" °C";
   humValue.textContent  = h.toFixed(0)+" %";
-  gasValue.textContent  = g.toFixed(0)+" PPM";
+  gasValue.textContent = gas + " PPM";
   dustValue.textContent = p.toFixed(1)+" µg/m³";
 
   gasType.textContent = jenisGas(g);
@@ -163,4 +184,31 @@ onValue(ref(db,"sensor"),snap=>{
 
   updateChart(new Date().toLocaleTimeString(),t,h,g);
 });
+const ctx = document.getElementById("trendChart").getContext("2d");
+
+const trendChart = new Chart(ctx,{
+  type:"line",
+  data:{
+    labels: chartLabels,
+    datasets:[{
+      label:"Average Air Quality",
+      data: chartData,
+      borderWidth:2,
+      tension:0.4,
+      fill:true
+    }]
+  },
+  options:{
+    responsive:true,
+    scales:{
+      y:{
+        beginAtZero:true,
+        ticks:{
+          stepSize:10
+        }
+      }
+    }
+  }
+});
+
 
