@@ -139,4 +139,24 @@ onValue(ref(db,"sensor"),snap=>{
 });
 
 console.log("SCRIPT BERHASIL JALAN");
+/* ================= NAVIGATION MENU ================= */
+const navLinks = document.querySelectorAll(".nav-link");
+const pages = document.querySelectorAll(".page");
+
+navLinks.forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+
+    const target = link.textContent.toLowerCase(); 
+    // dashboard / history / settings
+
+    pages.forEach(p => p.classList.remove("active"));
+    document.getElementById(`page-${target}`).classList.add("active");
+
+    navLinks.forEach(l => l.classList.remove("active"));
+    link.classList.add("active");
+  });
+});
+
+
 
