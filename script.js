@@ -23,22 +23,34 @@ function jenisGas(ppm){
   return "High Mixed Gas";
 }
 
-function statusUdara(ppm){
-  if(ppm < 400) return "HEALTHY";
-  if(ppm < 800) return "MODERATE";
-  if(ppm < 1500) return "UNHEALTHY";
-  return "DANGEROUS";
+/* ================= STATUS DARI FIREBASE ================= */
+function mapStatusFirebase(status){
+  if(!status) return "UNKNOWN";
+
+  status = status.toLowerCase();
+
+  if(status === "baik") return "HEALTHY";
+  if(status === "sedang") return "MODERATE";
+  if(status === "buruk") return "UNHEALTHY";
+  if(status === "bahaya") return "DANGEROUS";
+
+  return "UNKNOWN";
 }
 
 function updateCardStatus(status){
   const cards = document.querySelectorAll(".card");
   cards.forEach(card=>{
-    card.classList.remove("status-healthy","status-moderate","status-unhealthy","status-danger");
+    card.classList.remove(
+      "status-healthy",
+      "status-moderate",
+      "status-unhealthy",
+      "status-danger"
+    );
 
     if(status === "HEALTHY") card.classList.add("status-healthy");
     else if(status === "MODERATE") card.classList.add("status-moderate");
     else if(status === "UNHEALTHY") card.classList.add("status-unhealthy");
-    else card.classList.add("status-danger");
+    else if(status === "DANGEROUS") card.classList.add("status-danger");
   });
 }
 
@@ -111,13 +123,16 @@ onValue(ref(db,"sensor"),snap=>{
 
   gasType.textContent = jenisGas(gasNum);
 
-  const status = statusUdara(gasNum);
-  airStatus.textContent = "AIR QUALITY STATUS : "+status;
+  /* 🔥 STATUS DIAMBIL LANGSUNG DARI FIREBASE */
+  const status = mapStatusFirebase(d.status);
+
+  airStatus.textContent = "AIR QUALITY STATUS : " + status;
 
   airStatus.style.background =
     status==="HEALTHY"?"#1b5e20":
     status==="MODERATE"?"#f9a825":
-    status==="UNHEALTHY"?"#c62828":"#6a1b9a";
+    status==="UNHEALTHY"?"#c62828":
+    status==="DANGEROUS"?"#6a1b9a":"#37474f";
 
   updateCardStatus(status);
   updateChart(new Date().toLocaleTimeString(), gasNum);
