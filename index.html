@@ -85,19 +85,48 @@
       </table>
     </section>
 
-    <!-- SETTINGS -->
-    <section id="page-settings" class="page">
-      <div class="settings-box">
-        <h3>📘 Tentang Website</h3>
-        <p>Monitoring kualitas udara realtime berbasis ESP & Firebase.</p>
+    <!-- ================= SETTINGS ================= -->
+<section id="page-settings" class="page">
 
-        <h3>🚦 Indikator Status</h3>
-        <ul>
-          <li>🟢 Baik</li>
-          <li>🟡 Kurang Baik</li>
-          <li>🔴 Buruk</li>
-        </ul>
-      </div>
+  <div class="settings-box">
+    <h3>📘 Tentang Website</h3>
+    <p>
+      Website ini digunakan untuk memantau kualitas udara secara realtime
+      menggunakan ESP8266 dan Firebase Realtime Database.
+    </p>
+
+    <h3>🧮 Rumus Penilaian Kualitas Udara</h3>
+    <ul>
+      <li><b>Gas (MQ135)</b><br>
+        🟢 ≤ 400 PPM : BAIK<br>
+        🟡 401 – 800 PPM : KURANG BAIK<br>
+        🔴 &gt; 800 PPM : BURUK
+      </li>
+      <br>
+      <li><b>Debu (PM2.5)</b><br>
+        🟢 ≤ 35 µg/m³ : BAIK<br>
+        🟡 36 – 75 µg/m³ : KURANG BAIK<br>
+        🔴 &gt; 75 µg/m³ : BURUK
+      </li>
+    </ul>
+
+    <h3>📌 Penentuan Status Udara</h3>
+    <p>
+      Jika salah satu parameter menunjukkan kondisi <b>BURUK</b>,
+      maka status udara menjadi <b>BURUK</b>.
+      Jika tidak ada yang buruk tetapi ada yang <b>KURANG BAIK</b>,
+      maka status menjadi <b>KURANG BAIK</b>.
+      Jika semua parameter normal, maka status menjadi <b>BAIK</b>.
+    </p>
+
+    <h3>🚦 Indikator LED</h3>
+    <ul>
+      <li>🟢 LED Hijau → Udara BAIK</li>
+      <li>🟡 LED Kuning → Udara KURANG BAIK</li>
+      <li>🔴 LED Merah → Udara BURUK / BERBAHAYA</li>
+    </ul>
+  </div>
+
     </section>
 
   </main>
@@ -111,3 +140,4 @@
 <script type="module" src="script.js"></script>
 </body>
 </html>
+
