@@ -27,7 +27,6 @@ function jenisGas(ppm){
 /* ================= STATUS DARI FIREBASE ================= */
 function mapStatusFirebase(status){
   if(!status) return "UNKNOWN";
-
   status = status.toLowerCase();
 
   if(status === "baik") return "HEALTHY";
@@ -38,6 +37,7 @@ function mapStatusFirebase(status){
   return "UNKNOWN";
 }
 
+/* ================= UPDATE WARNA CARD ================= */
 function updateCardStatus(status){
   document.querySelectorAll(".card").forEach(card=>{
     card.classList.remove(
@@ -70,15 +70,18 @@ gradGas.addColorStop(1,"rgba(255,120,120,0)");
 
 const chart = new Chart(ctx,{
   type:"line",
-  data:{ labels:[], datasets:[{
-    label:"Gas (PPM)",
-    data:[],
-    borderColor:"#ff7b7b",
-    backgroundColor:gradGas,
-    fill:true,
-    tension:.4,
-    pointRadius:3
-  }]},
+  data:{
+    labels:[],
+    datasets:[{
+      label:"Gas (PPM)",
+      data:[],
+      borderColor:"#ff7b7b",
+      backgroundColor:gradGas,
+      fill:true,
+      tension:.4,
+      pointRadius:3
+    }]
+  },
   options:{
     responsive:true,
     plugins:{ legend:{labels:{color:"#e0f2f1"}} },
@@ -92,7 +95,6 @@ const chart = new Chart(ctx,{
 function updateChart(time,gas){
   chart.data.labels.push(time);
   chart.data.datasets[0].data.push(gas);
-
   if(chart.data.labels.length > 12){
     chart.data.labels.shift();
     chart.data.datasets[0].data.shift();
@@ -134,35 +136,38 @@ if(historyBody){
     historyBody.innerHTML="";
     snap.forEach(child=>{
       const d = child.val();
-      const row = `
-        <tr>
-          <td>${new Date(d.timestamp*1000).toLocaleString()}</td>
-          <td>${d.temperature} °C</td>
-          <td>${d.humidity} %</td>
-          <td>${d.gas} PPM</td>
-          <td>${mapStatusFirebase(d.status)}</td>
-        </tr>`;
-      historyBody.innerHTML = row + historyBody.innerHTML;
+      historyBody.innerHTML =
+      `<tr>
+        <td>${new Date(d.timestamp*1000).toLocaleString()}</td>
+        <td>${d.temperature} °C</td>
+        <td>${d.humidity} %</td>
+        <td>${d.gas} PPM</td>
+        <td>${d.dust} µg/m³</td>
+        <td>${mapStatusFirebase(d.status)}</td>
+      </tr>` + historyBody.innerHTML;
     });
   });
 }
 
 /* ================= NAVIGATION ================= */
-const navLinks = document.querySelectorAll(".nav-link");
-const pages = document.querySelectorAll(".page");
-
-navLinks.forEach(link=>{
+document.querySelectorAll(".nav-link").forEach(link=>{
   link.addEventListener("click",e=>{
     e.preventDefault();
-
     const target = link.textContent.toLowerCase();
 
-    pages.forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
     document.getElementById(`page-${target}`).classList.add("active");
 
-    navLinks.forEach(l=>l.classList.remove("active"));
+    document.querySelectorAll(".nav-link").forEach(l=>l.classList.remove("active"));
     link.classList.add("active");
   });
 });
 
-console.log("SCRIPT DASHBOARD BERHASIL JALAN");
+/* ================= INFO POPUP (ℹ️ CARD) ================= */
+document.querySelectorAll(".info-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    alert(btn.dataset.info);
+  });
+});
+
+console.log("✅ SCRIPT DASHBOARD LENGKAP & BERHASIL JALAN");
