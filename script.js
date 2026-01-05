@@ -107,7 +107,7 @@ onValue(ref(db,"sensor"),snap=>{
   const d = snap.val();
   if(!d) return;
 
-  const gasNum = Math.floor(Number(d.gas));
+  const gasNum = Number(String(Math.floor(Number(d.gas))).substring(0,3));
   const status = mapStatusFirebase(d.status);
 
   tempValue.textContent = Number(d.temperature).toFixed(1)+" °C";
@@ -171,4 +171,5 @@ document.querySelectorAll(".info-btn").forEach(btn=>{
 });
 
 console.log("✅ SCRIPT DASHBOARD LENGKAP & BERHASIL JALAN");
+
 
