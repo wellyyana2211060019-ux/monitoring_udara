@@ -97,6 +97,11 @@ const gasValue  = document.getElementById("gasValue");
 const dustValue = document.getElementById("dustValue");
 const gasType   = document.getElementById("gasType");
 const airStatus = document.getElementById("airStatus");
+const aqiPM25El   = document.getElementById("aqiPM25");
+const aqiGasEl    = document.getElementById("aqiGas");
+const aqiFinalEl  = document.getElementById("aqiFinal");
+const aqiCatEl    = document.getElementById("aqiCategory");
+
 
 /* ================= CHART ================= */
 const ctx = document.getElementById("trendChart").getContext("2d");
@@ -158,10 +163,25 @@ onValue(ref(db,"sensor"),snap=>{
     status==="MODERATE"?"#f9a825":
     status==="UNHEALTHY"?"#c62828":
     status==="DANGEROUS"?"#6a1b9a":"#37474f";
+    // ===== AQI UNTUK SETTINGS =====
+const pm = Number(d.dust);
+const gasPPM = gasNum / 100; // normalisasi MQ135 → CO ekuivalen
+
+const aqi_pm  = aqiPM25(pm);
+const aqi_gas = aqiGas(gasPPM);
+const aqiFinal = Math.max(aqi_pm, aqi_gas);
+
+if(aqiPM25El){
+  aqiPM25El.textContent  = aqi_pm;
+  aqiGasEl.textContent   = aqi_gas;
+  aqiFinalEl.textContent = aqiFinal;
+  aqiCatEl.textContent   = kategoriAQI(aqiFinal);
+}
 
   updateCardStatus(status);
   updateChart(new Date().toLocaleTimeString(), gasNum);
 });
+
 
 /* ================= HISTORY ================= */
 const historyBody = document.getElementById("historyBody");
@@ -207,6 +227,7 @@ document.querySelectorAll(".info-btn").forEach(btn=>{
 });
 
 console.log("✅ SCRIPT DASHBOARD LENGKAP & BERHASIL JALAN");
+
 
 
 
