@@ -53,15 +53,6 @@
           <div class="card-value" id="gasType">-</div>
         </div>
       </section>
-      
-          <div class="card neon">
-  <div class="card-title">
-    Air Quality Index (AQI)
-    <span class="info-btn" data-info="AQI dihitung dari PM2.5 dan Gas berdasarkan standar EPA">ℹ️</span>
-  </div>
-  <div class="card-value" id="aqiValue">--</div>
-  <small id="aqiCategory">---</small>
-</div>
 
       <section class="statusBanner">
         <div class="statusText" id="airStatus">STATUS : --</div>
@@ -118,6 +109,28 @@
         🔴 &gt; 75 µg/m³ : BURUK
       </li>
     </ul>
+        <h3>📊 Air Quality Index (AQI)</h3>
+
+<div class="settings-box aqi-settings">
+  <p>
+    Nilai <b>Air Quality Index (AQI)</b> dihitung berdasarkan parameter
+    <b>PM2.5</b> dan <b>Gas</b> menggunakan metode interpolasi linear
+    sesuai standar <b>EPA</b>.
+  </p>
+
+  <p><b>Hasil Perhitungan AQI Saat Ini:</b></p>
+
+  <ul>
+    <li>AQI PM2.5 : <b><span id="aqiPM25">--</span></b></li>
+    <li>AQI Gas : <b><span id="aqiGas">--</span></b></li>
+    <li>AQI Akhir : <b><span id="aqiFinal">--</span></b></li>
+    <li>Kategori AQI : <b><span id="aqiCategory">--</span></b></li>
+  </ul>
+
+  <small>
+    AQI akhir ditentukan berdasarkan nilai sub-indeks terbesar.
+  </small>
+</div>
 
     <h3>📌 Penentuan Status Udara</h3>
     <p>
@@ -149,6 +162,7 @@
 <script type="module" src="script.js"></script>
 </body>
 </html>
+
 
 
 
