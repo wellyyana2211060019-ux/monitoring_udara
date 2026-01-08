@@ -125,3 +125,16 @@ body{
 .page.active{
   display:block;
 }
+
+/* ===== AQI CARD ===== */
+#a qiValue {
+  font-size:28px;
+  font-weight:bold;
+}
+
+#a qiCategory {
+  display:block;
+  margin-top:6px;
+  font-size:14px;
+  opacity:.9;
+}
