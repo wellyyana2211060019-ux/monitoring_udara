@@ -23,6 +23,42 @@ function jenisGas(ppm){
   if(ppm < 2000) return "Medium VOC / NH₃";
   return "High Mixed Gas";
 }
+/* ================= AQI ================= */
+
+// hitung AQI (rumus interpolasi)
+function hitungAQI(C, Clow, Chigh, Ilow, Ihigh){
+  return Math.round(((Ihigh - Ilow) / (Chigh - Clow)) * (C - Clow) + Ilow);
+}
+
+// AQI PM2.5
+function aqiPM25(pm){
+  if(pm <= 12) return hitungAQI(pm,0,12,0,50);
+  if(pm <= 35.4) return hitungAQI(pm,12.1,35.4,51,100);
+  if(pm <= 55.4) return hitungAQI(pm,35.5,55.4,101,150);
+  if(pm <= 150.4) return hitungAQI(pm,55.5,150.4,151,200);
+  if(pm <= 250.4) return hitungAQI(pm,150.5,250.4,201,300);
+  return hitungAQI(pm,250.5,500.4,301,500);
+}
+
+// AQI Gas (CO ekuivalen)
+function aqiGas(ppm){
+  if(ppm <= 4.4) return hitungAQI(ppm,0,4.4,0,50);
+  if(ppm <= 9.4) return hitungAQI(ppm,4.5,9.4,51,100);
+  if(ppm <= 12.4) return hitungAQI(ppm,9.5,12.4,101,150);
+  if(ppm <= 15.4) return hitungAQI(ppm,12.5,15.4,151,200);
+  if(ppm <= 30.4) return hitungAQI(ppm,15.5,30.4,201,300);
+  return hitungAQI(ppm,30.5,50.4,301,500);
+}
+
+// kategori AQI
+function kategoriAQI(aqi){
+  if(aqi <= 50) return "BAIK";
+  if(aqi <= 100) return "SEDANG";
+  if(aqi <= 150) return "TIDAK SEHAT (SENSITIF)";
+  if(aqi <= 200) return "TIDAK SEHAT";
+  if(aqi <= 300) return "SANGAT TIDAK SEHAT";
+  return "BERBAHAYA";
+}
 
 /* ================= STATUS DARI FIREBASE ================= */
 function mapStatusFirebase(status){
@@ -171,5 +207,6 @@ document.querySelectorAll(".info-btn").forEach(btn=>{
 });
 
 console.log("✅ SCRIPT DASHBOARD LENGKAP & BERHASIL JALAN");
+
 
 
