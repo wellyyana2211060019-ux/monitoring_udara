@@ -1,4 +1,4 @@
-
+script.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, onValue, query, limitToLast } 
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -25,36 +25,17 @@ function jenisGas(ppm){
   return "High Mixed Gas";
 }
 
-/* ================= ISPU KLHK ================= */
-function hitungISPU(C, Clow, Chigh, Ilow, Ihigh){
-  return Math.round(((Ihigh - Ilow) / (Chigh - Clow)) * (C - Clow) + Ilow);
-}
+/* ================= STATUS DARI FIREBASE ================= */
+function mapStatusFirebase(status){
+  if(!status) return "UNKNOWN";
+  status = status.toLowerCase();
 
-// ISPU PM2.5 (KLHK)
-function ispuPM25(pm){
-  if(pm <= 15.5) return hitungISPU(pm,0,15.5,0,50);
-  if(pm <= 55.4) return hitungISPU(pm,15.6,55.4,51,100);
-  if(pm <= 150.4) return hitungISPU(pm,55.5,150.4,101,200);
-  if(pm <= 250.4) return hitungISPU(pm,150.5,250.4,201,300);
-  return hitungISPU(pm,250.5,500,301,500);
-}
+  if(status === "baik") return "HEALTHY";
+  if(status === "sedang") return "MODERATE";
+  if(status === "buruk") return "UNHEALTHY";
+  if(status === "bahaya") return "DANGEROUS";
 
-// ISPU Gas (indikatif MQ135)
-function ispuGas(ppm){
-  if(ppm <= 400) return 50;
-  if(ppm <= 800) return 100;
-  if(ppm <= 1200) return 200;
-  if(ppm <= 2000) return 300;
-  return 400;
-}
-
-// Kategori ISPU
-function kategoriISPU(ispu){
-  if(ispu <= 50) return "BAIK";
-  if(ispu <= 100) return "SEDANG";
-  if(ispu <= 200) return "TIDAK SEHAT";
-  if(ispu <= 300) return "SANGAT TIDAK SEHAT";
-  return "BERBAHAYA";
+  return "UNKNOWN";
 }
 
 /* ================= UPDATE WARNA CARD ================= */
@@ -67,11 +48,10 @@ function updateCardStatus(status){
       "status-danger"
     );
 
-    if(status === "BAIK") card.classList.add("status-healthy");
-    if(status === "SEDANG") card.classList.add("status-moderate");
-    if(status === "TIDAK SEHAT") card.classList.add("status-unhealthy");
-    if(status === "SANGAT TIDAK SEHAT" || status === "BERBAHAYA")
-      card.classList.add("status-danger");
+    if(status === "HEALTHY") card.classList.add("status-healthy");
+    if(status === "MODERATE") card.classList.add("status-moderate");
+    if(status === "UNHEALTHY") card.classList.add("status-unhealthy");
+    if(status === "DANGEROUS") card.classList.add("status-danger");
   });
 }
 
@@ -82,11 +62,6 @@ const gasValue  = document.getElementById("gasValue");
 const dustValue = document.getElementById("dustValue");
 const gasType   = document.getElementById("gasType");
 const airStatus = document.getElementById("airStatus");
-
-const ispuPM25El  = document.getElementById("ispuPM25");
-const ispuGasEl   = document.getElementById("ispuGas");
-const ispuFinalEl = document.getElementById("ispuFinal");
-const ispuCatEl   = document.getElementById("ispuCategory");
 
 /* ================= CHART ================= */
 const ctx = document.getElementById("trendChart").getContext("2d");
@@ -108,7 +83,14 @@ const chart = new Chart(ctx,{
       pointRadius:3
     }]
   },
-  options:{ responsive:true }
+  options:{
+    responsive:true,
+    plugins:{ legend:{labels:{color:"#e0f2f1"}} },
+    scales:{
+      x:{ticks:{color:"#b0bec5"}},
+      y:{ticks:{color:"#b0bec5"}}
+    }
+  }
 });
 
 function updateChart(time,gas){
@@ -127,41 +109,28 @@ onValue(ref(db,"sensor"),snap=>{
   if(!d) return;
 
   const gasNum = Number(String(Math.floor(Number(d.gas))).substring(0,3));
-  const pm25   = Number(d.dust);
+  const status = mapStatusFirebase(d.status);
 
   tempValue.textContent = Number(d.temperature).toFixed(1)+" °C";
   humValue.textContent  = Number(d.humidity).toFixed(0)+" %";
   gasValue.textContent  = gasNum+" PPM";
-  dustValue.textContent = pm25.toFixed(1)+" µg/m³";
+  dustValue.textContent = Number(d.dust).toFixed(1)+" µg/m³";
   gasType.textContent   = jenisGas(gasNum);
 
-  // === HITUNG ISPU ===
-  const ispu_pm   = ispuPM25(pm25);
-  const ispu_gas  = ispuGas(gasNum);
-  const ispuFinal = Math.max(ispu_pm, ispu_gas);
-  const ispuStat  = kategoriISPU(ispuFinal);
-
-  airStatus.textContent = "STATUS ISPU : " + ispuStat;
+  airStatus.textContent = "AIR QUALITY STATUS : " + status;
   airStatus.style.background =
-    ispuStat==="BAIK"?"#1b5e20":
-    ispuStat==="SEDANG"?"#f9a825":
-    ispuStat==="TIDAK SEHAT"?"#ef6c00":
-    ispuStat==="SANGAT TIDAK SEHAT"?"#c62828":"#000";
+    status==="HEALTHY"?"#1b5e20":
+    status==="MODERATE"?"#f9a825":
+    status==="UNHEALTHY"?"#c62828":
+    status==="DANGEROUS"?"#6a1b9a":"#37474f";
 
-  updateCardStatus(ispuStat);
+  updateCardStatus(status);
   updateChart(new Date().toLocaleTimeString(), gasNum);
-
-  // === SETTINGS PAGE ===
-  if(ispuPM25El){
-    ispuPM25El.textContent  = ispu_pm;
-    ispuGasEl.textContent   = ispu_gas;
-    ispuFinalEl.textContent = ispuFinal;
-    ispuCatEl.textContent   = ispuStat;
-  }
 });
 
 /* ================= HISTORY ================= */
 const historyBody = document.getElementById("historyBody");
+
 if(historyBody){
   const q = query(ref(db,"history"), limitToLast(20));
   onValue(q,snap=>{
@@ -175,10 +144,32 @@ if(historyBody){
         <td>${d.humidity} %</td>
         <td>${d.gas} PPM</td>
         <td>${d.dust} µg/m³</td>
-        <td>${kategoriISPU(ispuPM25(d.dust))}</td>
+        <td>${mapStatusFirebase(d.status)}</td>
       </tr>` + historyBody.innerHTML;
     });
   });
 }
 
-console.log("✅ ISPU KLHK AKTIF — SISTEM NASIONAL SIAP SIDANG");
+/* ================= NAVIGATION ================= */
+document.querySelectorAll(".nav-link").forEach(link=>{
+  link.addEventListener("click",e=>{
+    e.preventDefault();
+    const target = link.textContent.toLowerCase();
+
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(`page-${target}`).classList.add("active");
+
+    document.querySelectorAll(".nav-link").forEach(l=>l.classList.remove("active"));
+    link.classList.add("active");
+  });
+});
+
+/* ================= INFO POPUP (ℹ️ CARD) ================= */
+document.querySelectorAll(".info-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    alert(btn.dataset.info);
+  });
+});
+
+console.log("✅ SCRIPT DASHBOARD LENGKAP & BERHASIL JALAN");
+
