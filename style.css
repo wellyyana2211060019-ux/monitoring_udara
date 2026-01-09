@@ -1,32 +1,22 @@
 :root{
   --neon:#44f0e6;
-  --bg1:#3b3f46;
-  --bg2:#1b1d22;
-}
-
-*{
-  box-sizing:border-box;
 }
 
 body{
   margin:0;
-  display:flex;
-  justify-content:center;
-  background:linear-gradient(var(--bg1),var(--bg2));
+  background:#1b1d22;
   font-family:"Segoe UI",Arial,sans-serif;
   color:#e6eef0;
 }
 
 .container{
-  width:100%;
   max-width:1200px;
+  margin:auto;
 }
 
-/* TOPBAR */
 .topbar{
   display:flex;
   justify-content:space-between;
-  align-items:center;
   padding:16px;
 }
 
@@ -40,35 +30,19 @@ body{
   color:var(--neon);
 }
 
-/* MAIN */
-.main{
-  padding:16px;
-}
+.main{ padding:16px; }
 
-/* CARDS */
 .cards{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
   gap:16px;
 }
 
 .card{
   background:#101820;
-  border-radius:16px;
   padding:16px;
+  border-radius:14px;
   text-align:center;
-  cursor:pointer;
-  transition:.3s;
-}
-
-.card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 0 24px rgba(68,240,230,.4);
-}
-
-.card-title{
-  font-size:14px;
-  margin-bottom:10px;
 }
 
 .card-value{
@@ -76,28 +50,16 @@ body{
   font-weight:bold;
 }
 
-/* STATUS */
-.statusBanner{
-  margin:20px 0;
-}
-
 .statusText{
   padding:14px;
   border-radius:12px;
+  margin:20px 0;
   text-align:center;
-  font-weight:bold;
+  background:#37474f;
 }
 
-/* CHART */
-.chartArea{
-  margin-top:20px;
-}
+.chartArea{ margin-top:20px; }
 
-.chartArea canvas{
-  max-width:100%;
-}
-
-/* TABLE */
 .history-table{
   width:100%;
   border-collapse:collapse;
@@ -110,36 +72,45 @@ body{
   text-align:center;
 }
 
-/* FOOTER */
 .footer{
   text-align:center;
   padding:16px;
+  opacity:.6;
+}
+
+.page{ display:none; }
+.page.active{ display:block; }
+
+/* ISPU SETTINGS */
+.ispu-box{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:16px;
+  margin-top:16px;
+}
+
+.ispu-item{
+  background:#0f1720;
+  padding:16px;
+  border-radius:14px;
+  text-align:center;
+}
+
+.ispu-item span{
+  font-size:13px;
   opacity:.7;
 }
 
-/* PAGE SWITCH */
-.page{
-  display:none;
+.ispu-item strong{
+  font-size:26px;
+  color:#44f0e6;
 }
 
-.page.active{
-  display:block;
+.ispu-item.highlight strong{
+  font-size:30px;
 }
 
-/* ===== AQI SETTINGS ===== */
-.aqi-settings {
-  margin-top: 16px;
-  background: rgba(0,0,0,.25);
-  border-radius: 12px;
-  padding: 14px;
+.ispu-item.status strong{
+  font-size:18px;
+  color:#fff;
 }
-
-.aqi-settings ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-.aqi-settings li {
-  margin: 6px 0;
-}
-
