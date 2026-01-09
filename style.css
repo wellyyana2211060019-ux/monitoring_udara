@@ -1,172 +1,65 @@
-:root{
-  --neon:#44f0e6;
-  --bg1:#3b3f46;
-  --bg2:#1b1d22;
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #0f172a;
+  color: white;
 }
 
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  display:flex;
-  justify-content:center;
-  background:linear-gradient(var(--bg1),var(--bg2));
-  font-family:"Segoe UI",Arial,sans-serif;
-  color:#e6eef0;
-}
-
-.container{
-  width:100%;
-  max-width:1200px;
-}
-
-/* TOPBAR */
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:16px;
-}
-
-.nav-link{
-  color:#cfd8dc;
-  margin-left:16px;
-  text-decoration:none;
-}
-
-.nav-link.active{
-  color:var(--neon);
-}
-
-/* MAIN */
-.main{
-  padding:16px;
-}
-
-/* CARDS */
-.cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:16px;
-}
-
-.card{
-  background:#101820;
-  border-radius:16px;
-  padding:16px;
-  text-align:center;
-  cursor:pointer;
-  transition:.3s;
-}
-
-.card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 0 24px rgba(68,240,230,.4);
-}
-
-.card-title{
-  font-size:14px;
-  margin-bottom:10px;
-}
-
-.card-value{
-  font-size:24px;
-  font-weight:bold;
-}
-
-/* STATUS */
-.statusBanner{
-  margin:20px 0;
-}
-
-.statusText{
-  padding:14px;
-  border-radius:12px;
-  text-align:center;
-  font-weight:bold;
-}
-
-/* CHART */
-.chartArea{
-  margin-top:20px;
-}
-
-.chartArea canvas{
-  max-width:100%;
-}
-
-/* TABLE */
-.history-table{
-  width:100%;
-  border-collapse:collapse;
-}
-
-.history-table th,
-.history-table td{
-  padding:10px;
-  border-bottom:1px solid #333;
-  text-align:center;
-}
-
-/* FOOTER */
-.footer{
-  text-align:center;
-  padding:16px;
-  opacity:.7;
-}
-
-/* PAGE SWITCH */
-.page{
-  display:none;
-}
-
-.page.active{
-  display:block;
-}
-/* ================= SENSOR HISTORY ================= */
-#sensor-section {
-  margin: 30px;
-}
-
-.sensor-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+.navbar {
+  background: #020617;
+  padding: 10px;
+  display: flex;
   gap: 15px;
 }
 
-.sensor-card {
-  background: #1e293b;
-  color: white;
-  padding: 20px;
-  border-radius: 12px;
+.nav-link {
   cursor: pointer;
+  color: #cbd5f5;
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: #38bdf8;
+  font-weight: bold;
+}
+
+.page {
+  display: none;
+  padding: 20px;
+}
+
+.page.active {
+  display: block;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
+  gap: 15px;
+}
+
+.card {
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 10px;
   text-align: center;
-  transition: 0.3s;
 }
 
-.sensor-card:hover {
-  background: #334155;
-  transform: scale(1.05);
-}
-
-.filter-waktu {
+.status-box {
   margin: 20px 0;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
 }
 
-.filter-waktu button {
-  padding: 8px 15px;
+.history-filter {
+  margin: 15px 0;
+}
+
+.history-filter button {
   margin-right: 8px;
+  padding: 6px 14px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  background: #2563eb;
-  color: white;
 }
-
-.filter-waktu button:hover {
-  background: #1d4ed8;
-}
-
-
