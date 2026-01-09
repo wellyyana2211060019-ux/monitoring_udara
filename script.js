@@ -1,8 +1,14 @@
+/* ================= FIREBASE IMPORT ================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, onValue, query, limitToLast } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  query,
+  limitToLast
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* ================= FIREBASE ================= */
+/* ================= FIREBASE CONFIG ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDNx_YJ8sXo-PQzBhwTCoeLeaymaN_Wifc",
   authDomain: "airqualitymonitoring-28fa9.firebaseapp.com",
@@ -13,31 +19,31 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const db  = getDatabase(app);
 
 /* ================= LOGIKA GAS ================= */
 function jenisGas(ppm){
-  if(ppm < 400) return "Healthy Air";
-  if(ppm < 800) return "Low CO₂";
+  if(ppm < 400)  return "Healthy Air";
+  if(ppm < 800)  return "Low CO₂";
   if(ppm < 1200) return "Light VOC";
   if(ppm < 2000) return "Medium VOC / NH₃";
   return "High Mixed Gas";
 }
 
-/* ================= STATUS DARI FIREBASE ================= */
+/* ================= STATUS ================= */
 function mapStatusFirebase(status){
   if(!status) return "UNKNOWN";
   status = status.toLowerCase();
 
-  if(status === "baik") return "HEALTHY";
+  if(status === "baik")   return "HEALTHY";
   if(status === "sedang") return "MODERATE";
-  if(status === "buruk") return "UNHEALTHY";
+  if(status === "buruk")  return "UNHEALTHY";
   if(status === "bahaya") return "DANGEROUS";
 
   return "UNKNOWN";
 }
 
-/* ================= UPDATE WARNA CARD ================= */
+/* ================= UPDATE CARD COLOR ================= */
 function updateCardStatus(status){
   document.querySelectorAll(".card").forEach(card=>{
     card.classList.remove(
@@ -47,10 +53,10 @@ function updateCardStatus(status){
       "status-danger"
     );
 
-    if(status === "HEALTHY") card.classList.add("status-healthy");
-    if(status === "MODERATE") card.classList.add("status-moderate");
-    if(status === "UNHEALTHY") card.classList.add("status-unhealthy");
-    if(status === "DANGEROUS") card.classList.add("status-danger");
+    if(status === "HEALTHY")    card.classList.add("status-healthy");
+    if(status === "MODERATE")   card.classList.add("status-moderate");
+    if(status === "UNHEALTHY")  card.classList.add("status-unhealthy");
+    if(status === "DANGEROUS")  card.classList.add("status-danger");
   });
 }
 
@@ -62,52 +68,61 @@ const dustValue = document.getElementById("dustValue");
 const gasType   = document.getElementById("gasType");
 const airStatus = document.getElementById("airStatus");
 
-/* ================= CHART ================= */
-const ctx = document.getElementById("trendChart").getContext("2d");
-const gradGas = ctx.createLinearGradient(0,0,0,200);
-gradGas.addColorStop(0,"rgba(255,120,120,.4)");
-gradGas.addColorStop(1,"rgba(255,120,120,0)");
+/* ================= CHART TREND ================= */
+const ctx = document.getElementById("trendChart")?.getContext("2d");
 
-const chart = new Chart(ctx,{
-  type:"line",
-  data:{
-    labels:[],
-    datasets:[{
-      label:"Gas (PPM)",
-      data:[],
-      borderColor:"#ff7b7b",
-      backgroundColor:gradGas,
-      fill:true,
-      tension:.4,
-      pointRadius:3
-    }]
-  },
-  options:{
-    responsive:true,
-    plugins:{ legend:{labels:{color:"#e0f2f1"}} },
-    scales:{
-      x:{ticks:{color:"#b0bec5"}},
-      y:{ticks:{color:"#b0bec5"}}
+let trendChart = null;
+
+if(ctx){
+  const gradGas = ctx.createLinearGradient(0,0,0,200);
+  gradGas.addColorStop(0,"rgba(255,120,120,.4)");
+  gradGas.addColorStop(1,"rgba(255,120,120,0)");
+
+  trendChart = new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:[],
+      datasets:[{
+        label:"Gas (PPM)",
+        data:[],
+        borderColor:"#ff7b7b",
+        backgroundColor:gradGas,
+        fill:true,
+        tension:0.4,
+        pointRadius:3
+      }]
+    },
+    options:{
+      responsive:true,
+      animation:false,
+      plugins:{ legend:{labels:{color:"#e0f2f1"}} },
+      scales:{
+        x:{ticks:{color:"#b0bec5"}},
+        y:{ticks:{color:"#b0bec5"}}
+      }
     }
-  }
-});
-
-function updateChart(time,gas){
-  chart.data.labels.push(time);
-  chart.data.datasets[0].data.push(gas);
-  if(chart.data.labels.length > 12){
-    chart.data.labels.shift();
-    chart.data.datasets[0].data.shift();
-  }
-  chart.update();
+  });
 }
 
-/* ================= DASHBOARD ================= */
-onValue(ref(db,"sensor"),snap=>{
+function updateChart(label, value){
+  if(!trendChart) return;
+
+  trendChart.data.labels.push(label);
+  trendChart.data.datasets[0].data.push(value);
+
+  if(trendChart.data.labels.length > 12){
+    trendChart.data.labels.shift();
+    trendChart.data.datasets[0].data.shift();
+  }
+  trendChart.update();
+}
+
+/* ================= REALTIME DASHBOARD ================= */
+onValue(ref(db,"sensor"), snap=>{
   const d = snap.val();
   if(!d) return;
 
-  const gasNum = Number(String(Math.floor(Number(d.gas))).substring(0,3));
+  const gasNum = Math.round(Number(d.gas));
   const status = mapStatusFirebase(d.status);
 
   tempValue.textContent = Number(d.temperature).toFixed(1)+" °C";
@@ -118,33 +133,34 @@ onValue(ref(db,"sensor"),snap=>{
 
   airStatus.textContent = "AIR QUALITY STATUS : " + status;
   airStatus.style.background =
-    status==="HEALTHY"?"#1b5e20":
-    status==="MODERATE"?"#f9a825":
-    status==="UNHEALTHY"?"#c62828":
-    status==="DANGEROUS"?"#6a1b9a":"#37474f";
+    status==="HEALTHY"   ? "#1b5e20" :
+    status==="MODERATE"  ? "#f9a825" :
+    status==="UNHEALTHY" ? "#c62828" :
+    status==="DANGEROUS" ? "#6a1b9a" : "#37474f";
 
   updateCardStatus(status);
   updateChart(new Date().toLocaleTimeString(), gasNum);
 });
 
-/* ================= HISTORY ================= */
+/* ================= HISTORY TABLE ================= */
 const historyBody = document.getElementById("historyBody");
 
 if(historyBody){
-  const q = query(ref(db,"history"), limitToLast(20));
+  const q = query(ref(db,"history"), limitToLast(30));
   onValue(q,snap=>{
     historyBody.innerHTML="";
     snap.forEach(child=>{
       const d = child.val();
-      historyBody.innerHTML =
-      `<tr>
-        <td>${new Date(d.timestamp*1000).toLocaleString()}</td>
-        <td>${d.temperature} °C</td>
-        <td>${d.humidity} %</td>
-        <td>${d.gas} PPM</td>
-        <td>${d.dust} µg/m³</td>
-        <td>${mapStatusFirebase(d.status)}</td>
-      </tr>` + historyBody.innerHTML;
+      historyBody.insertAdjacentHTML("afterbegin",`
+        <tr>
+          <td>${new Date(d.timestamp*1000).toLocaleString()}</td>
+          <td>${d.temperature} °C</td>
+          <td>${d.humidity} %</td>
+          <td>${d.gas} PPM</td>
+          <td>${d.dust} µg/m³</td>
+          <td>${mapStatusFirebase(d.status)}</td>
+        </tr>
+      `);
     });
   });
 }
@@ -153,23 +169,21 @@ if(historyBody){
 document.querySelectorAll(".nav-link").forEach(link=>{
   link.addEventListener("click",e=>{
     e.preventDefault();
-    const target = link.textContent.toLowerCase();
+    const target = link.dataset.target;
 
     document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    document.getElementById(`page-${target}`).classList.add("active");
+    document.getElementById(target)?.classList.add("active");
 
     document.querySelectorAll(".nav-link").forEach(l=>l.classList.remove("active"));
     link.classList.add("active");
   });
 });
 
-/* ================= INFO POPUP (ℹ️ CARD) ================= */
+/* ================= INFO POPUP ================= */
 document.querySelectorAll(".info-btn").forEach(btn=>{
   btn.addEventListener("click",()=>{
     alert(btn.dataset.info);
   });
 });
 
-console.log("✅ SCRIPT DASHBOARD LENGKAP & BERHASIL JALAN");
-
-
+console.log("✅ DASHBOARD SCRIPT FIXED & STABLE");
