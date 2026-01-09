@@ -125,4 +125,48 @@ body{
 .page.active{
   display:block;
 }
+/* ================= SENSOR HISTORY ================= */
+#sensor-section {
+  margin: 30px;
+}
+
+.sensor-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.sensor-card {
+  background: #1e293b;
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.sensor-card:hover {
+  background: #334155;
+  transform: scale(1.05);
+}
+
+.filter-waktu {
+  margin: 20px 0;
+}
+
+.filter-waktu button {
+  padding: 8px 15px;
+  margin-right: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #2563eb;
+  color: white;
+}
+
+.filter-waktu button:hover {
+  background: #1d4ed8;
+}
+
 
