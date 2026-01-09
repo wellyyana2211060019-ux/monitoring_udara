@@ -1,3 +1,4 @@
+index.html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -10,14 +11,15 @@
 </head>
 
 <body>
+
 <div class="container">
 
   <header class="topbar">
     <div class="brand">🌿 AIR QUALITY MONITORING</div>
     <nav class="nav">
-      <a href="#dashboard" class="nav-link active">Dashboard</a>
-      <a href="#history" class="nav-link">History</a>
-      <a href="#settings" class="nav-link">Settings</a>
+      <a href="#" class="nav-link active">Dashboard</a>
+      <a href="#" class="nav-link">History</a>
+      <a href="#" class="nav-link">Settings</a>
     </nav>
   </header>
 
@@ -25,24 +27,29 @@
 
     <!-- DASHBOARD -->
     <section id="page-dashboard" class="page active">
+
       <section class="cards">
-        <div class="card">
-          <div class="card-title">Temperature</div>
+        <div class="card neon">
+          <div class="card-title">Temperature <span class="info-btn" data-info="Suhu udara (DHT). Ideal 24–30°C">ℹ️</span></div>
           <div class="card-value" id="tempValue">-- °C</div>
         </div>
-        <div class="card">
-          <div class="card-title">Humidity</div>
+
+        <div class="card neon">
+          <div class="card-title">Humidity <span class="info-btn" data-info="Kelembapan udara (%)">ℹ️</span></div>
           <div class="card-value" id="humValue">-- %</div>
         </div>
-        <div class="card">
-          <div class="card-title">Gas</div>
+
+        <div class="card neon">
+          <div class="card-title">Gas <span class="info-btn" data-info="Gas MQ135 (PPM)">ℹ️</span></div>
           <div class="card-value" id="gasValue">-- PPM</div>
         </div>
-        <div class="card">
-          <div class="card-title">Dust / PM2.5</div>
+
+        <div class="card neon">
+          <div class="card-title">Dust / PM2.5 <span class="info-btn" data-info="Debu halus PM2.5">ℹ️</span></div>
           <div class="card-value" id="dustValue">-- µg/m³</div>
         </div>
-        <div class="card">
+
+        <div class="card neon">
           <div class="card-title">Detected Gas</div>
           <div class="card-value" id="gasType">-</div>
         </div>
@@ -56,6 +63,7 @@
         <h3>Air Quality Trends</h3>
         <canvas id="trendChart"></canvas>
       </section>
+
     </section>
 
     <!-- HISTORY -->
@@ -78,49 +86,50 @@
       </table>
     </section>
 
-    <!-- SETTINGS -->
-    <section id="page-settings" class="page">
+    <!-- ================= SETTINGS ================= -->
+<section id="page-settings" class="page">
 
-      <h3>📘 Tentang Website</h3>
-      <p>
-        Website ini digunakan untuk memantau kualitas udara secara realtime
-        menggunakan ESP8266 dan Firebase Realtime Database.
-      </p>
+  <div class="settings-box">
+    <h3>📘 Tentang Website</h3>
+    <p>
+      Website ini digunakan untuk memantau kualitas udara secara realtime
+      menggunakan ESP8266 dan Firebase Realtime Database.
+    </p>
 
-      <h3>🧮 Metode Penilaian</h3>
-      <p>
-        Penilaian kualitas udara menggunakan
-        <b>Indeks Standar Pencemar Udara (ISPU)</b>
-        sesuai standar Kementerian Lingkungan Hidup dan Kehutanan (KLHK).
-      </p>
+    <h3>🧮 Rumus Penilaian Kualitas Udara</h3>
+    <ul>
+      <li><b>Gas (MQ135)</b><br>
+        🟢 ≤ 400 PPM : BAIK<br>
+        🟡 401 – 800 PPM : SEDANG<br>
+        🔴 &gt; 800 PPM : BURUK
+      </li>
+      <br>
+      <li><b>Debu (PM2.5)</b><br>
+        🟢 ≤ 35 µg/m³ : BAIK<br>
+        🟡 36 – 75 µg/m³ : SEDANG<br>
+        🔴 &gt; 75 µg/m³ : BURUK
+      </li>
+    </ul>
 
-      <hr style="margin:24px 0; opacity:.3;">
+    <h3>📌 Penentuan Status Udara</h3>
+    <p>
+      Jika salah satu parameter menunjukkan kondisi <b>BURUK</b>,
+      maka status udara menjadi <b>BURUK</b>.
+      Jika tidak ada yang buruk tetapi ada yang <b>SEDANG</b>,
+      maka status menjadi <b>SEDANG</b>.
+      Jika semua parameter normal, maka status menjadi <b>BAIK</b>.
+    </p>
 
-      <h3>📊 Nilai ISPU Realtime</h3>
-
-      <div class="ispu-box">
-        <div class="ispu-item">
-          <span>ISPU PM2.5</span>
-          <strong id="ispuPM25">--</strong>
-        </div>
-
-        <div class="ispu-item">
-          <span>ISPU Gas</span>
-          <strong id="ispuGas">--</strong>
-        </div>
-
-        <div class="ispu-item highlight">
-          <span>ISPU Akhir</span>
-          <strong id="ispuFinal">--</strong>
-        </div>
-
-        <div class="ispu-item status">
-          <span>Kategori</span>
-          <strong id="ispuCategory">--</strong>
-        </div>
-      </div>
+    <h3>🚦 Indikator LED</h3>
+    <ul>
+      <li>🟢 LED Hijau → Udara BAIK</li>
+      <li>🟡 LED Kuning → Udara SEDANG</li>
+      <li>🔴 LED Merah → Udara BURUK / BERBAHAYA</li>
+    </ul>
+  </div>
 
     </section>
+
   </main>
 
   <footer class="footer">
@@ -132,3 +141,4 @@
 <script type="module" src="script.js"></script>
 </body>
 </html>
+
