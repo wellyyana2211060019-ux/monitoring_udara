@@ -1,70 +1,55 @@
-import { getDatabase, ref, onValue, query, limitToLast }
+import { getDatabase, ref, onValue, query, limitToLast } 
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const db = getDatabase();
 
-let selectedSensor = "suhu";
+let selectedSensor = "gas";
 let rangeDay = 30;
-let chart;
+let historyChart;
 
-window.setRange = (day) => {
-  rangeDay = day;
-  loadSensorChart(selectedSensor);
+window.selectSensor = s => {
+  selectedSensor = s;
+  loadHistory();
 };
 
-window.loadSensorChart = (sensor) => {
-  selectedSensor = sensor;
+window.setRange = d => {
+  rangeDay = d;
+  loadHistory();
+};
 
-  const dataRef = query(ref(db, "sensor_data"), limitToLast(rangeDay * 24));
+function loadHistory(){
+  const ctx = document.getElementById("historyChart").getContext("2d");
+  const q = query(ref(db,"history"), limitToLast(rangeDay * 24));
 
-  onValue(dataRef, (snapshot) => {
-    let labels = [];
-    let data = [];
+  onValue(q,snap=>{
+    let labels=[], data=[];
 
-    snapshot.forEach(child => {
-      labels.push(child.key);
-      data.push(child.val()[sensor]);
+    snap.forEach(child=>{
+      const d = child.val();
+      labels.push(new Date(d.timestamp*1000).toLocaleDateString());
+      data.push(d[selectedSensor]);
     });
 
-    renderChart(labels, data, sensor);
-  });
-};
+    if(historyChart) historyChart.destroy();
 
-function renderChart(labels, data, sensor) {
-  const ctx = document.getElementById("detailChart").getContext("2d");
-
-  if (chart) chart.destroy();
-
-  chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: labels,
-      datasets: [{
-        label: sensor.toUpperCase(),
-        data: data,
-        borderWidth: 2,
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        zoom: {
-          pan: { enabled: true, mode: "x" },
-          zoom: { wheel: { enabled: true }, mode: "x" }
+    historyChart = new Chart(ctx,{
+      type:"line",
+      data:{
+        labels,
+        datasets:[{
+          label:selectedSensor.toUpperCase(),
+          data,
+          tension:.4
+        }]
+      },
+      options:{
+        plugins:{
+          zoom:{
+            pan:{enabled:true,mode:"x"},
+            zoom:{wheel:{enabled:true},mode:"x"}
+          }
         }
       }
-    }
+    });
   });
 }
-
-/* ===== ISI CARD DATA TERBARU ===== */
-onValue(query(ref(db, "sensor_data"), limitToLast(1)), (snap) => {
-  snap.forEach(child => {
-    const d = child.val();
-    document.getElementById("card-suhu").innerText = d.suhu + " °C";
-    document.getElementById("card-kelembaban").innerText = d.kelembaban + " %";
-    document.getElementById("card-pm25").innerText = d.pm25 + " µg/m³";
-    document.getElementById("card-gas").innerText = d.gas + " ppm";
-  });
-});
