@@ -1,4 +1,3 @@
-script.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, onValue, query, limitToLast } 
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -172,4 +171,5 @@ document.querySelectorAll(".info-btn").forEach(btn=>{
 });
 
 console.log("✅ SCRIPT DASHBOARD LENGKAP & BERHASIL JALAN");
+
 
