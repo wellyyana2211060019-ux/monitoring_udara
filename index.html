@@ -1,189 +1,108 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Air Quality Monitoring Dashboard</title>
+  <meta charset="UTF-8">
+  <title>Air Quality Monitoring</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="style.css" />
-</head>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
 
-<div class="container">
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <a class="nav-link active" data-target="page-dashboard">Dashboard</a>
+  <a class="nav-link" data-target="page-history">History</a>
+  <a class="nav-link" data-target="page-settings">Settings</a>
+</nav>
 
-  <header class="topbar">
-    <div class="brand">🌿 AIR QUALITY MONITORING</div>
-    <nav class="nav">
-      <a href="#" class="nav-link active">Dashboard</a>
-      <a href="#" class="nav-link">History</a>
-      <a href="#" class="nav-link">Settings</a>
-    </nav>
-  </header>
+<!-- ===== DASHBOARD ===== -->
+<div id="page-dashboard" class="page active">
 
-  <main class="main">
+  <h2>Dashboard Monitoring</h2>
 
-    <!-- DASHBOARD -->
-    <section id="page-dashboard" class="page active">
+  <div class="cards">
+    <div class="card">
+      <h4>Suhu</h4>
+      <p id="tempValue">-- °C</p>
+    </div>
 
-      <section class="cards">
-        <div class="card neon">
-          <div class="card-title">Temperature <span class="info-btn" data-info="Suhu udara (DHT). Ideal 24–30°C">ℹ️</span></div>
-          <div class="card-value" id="tempValue">-- °C</div>
-        </div>
+    <div class="card">
+      <h4>Kelembaban</h4>
+      <p id="humValue">-- %</p>
+    </div>
 
-        <div class="card neon">
-          <div class="card-title">Humidity <span class="info-btn" data-info="Kelembapan udara (%)">ℹ️</span></div>
-          <div class="card-value" id="humValue">-- %</div>
-        </div>
+    <div class="card">
+      <h4>Gas</h4>
+      <p id="gasValue">-- PPM</p>
+      <small id="gasType">-</small>
+    </div>
 
-        <div class="card neon">
-          <div class="card-title">Gas <span class="info-btn" data-info="Gas MQ135 (PPM)">ℹ️</span></div>
-          <div class="card-value" id="gasValue">-- PPM</div>
-        </div>
-
-        <div class="card neon">
-          <div class="card-title">Dust / PM2.5 <span class="info-btn" data-info="Debu halus PM2.5">ℹ️</span></div>
-          <div class="card-value" id="dustValue">-- µg/m³</div>
-        </div>
-
-        <div class="card neon">
-          <div class="card-title">Detected Gas</div>
-          <div class="card-value" id="gasType">-</div>
-        </div>
-      </section>
-
-      <section class="statusBanner">
-        <div class="statusText" id="airStatus">STATUS : --</div>
-      </section>
-
-      <section class="chartArea">
-        <h3>Air Quality Trends</h3>
-        <canvas id="trendChart"></canvas>
-      </section>
-
-    </section>
-
-    <!-- HISTORY -->
-    <section id="page-history" class="page">
-      <h2>History Data Sensor</h2>
-      <table class="history-table">
-        <thead>
-          <tr>
-            <th>Waktu</th>
-            <th>Suhu</th>
-            <th>Hum</th>
-            <th>Gas</th>
-            <th>Debu</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="historyBody">
-          <tr><td colspan="6">Data history akan muncul di sini</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- ================= SETTINGS ================= -->
-<section id="page-settings" class="page">
-
-  <div class="settings-box">
-    <h3>📘 Tentang Website</h3>
-    <p>
-      Website ini digunakan untuk memantau kualitas udara secara realtime
-      menggunakan ESP8266 dan Firebase Realtime Database.
-    </p>
-
-    <h3>🧮 Rumus Penilaian Kualitas Udara</h3>
-    <ul>
-      <li><b>Gas (MQ135)</b><br>
-        🟢 ≤ 400 PPM : BAIK<br>
-        🟡 401 – 800 PPM : SEDANG<br>
-        🔴 &gt; 800 PPM : BURUK
-      </li>
-      <br>
-      <li><b>Debu (PM2.5)</b><br>
-        🟢 ≤ 35 µg/m³ : BAIK<br>
-        🟡 36 – 75 µg/m³ : SEDANG<br>
-        🔴 &gt; 75 µg/m³ : BURUK
-      </li>
-    </ul>
-
-    <h3>📌 Penentuan Status Udara</h3>
-    <p>
-      Jika salah satu parameter menunjukkan kondisi <b>BURUK</b>,
-      maka status udara menjadi <b>BURUK</b>.
-      Jika tidak ada yang buruk tetapi ada yang <b>SEDANG</b>,
-      maka status menjadi <b>SEDANG</b>.
-      Jika semua parameter normal, maka status menjadi <b>BAIK</b>.
-    </p>
-
-    <h3>🚦 Indikator LED</h3>
-    <ul>
-      <li>🟢 LED Hijau → Udara BAIK</li>
-      <li>🟡 LED Kuning → Udara SEDANG</li>
-      <li>🔴 LED Merah → Udara BURUK / BERBAHAYA</li>
-    </ul>
+    <div class="card">
+      <h4>Debu</h4>
+      <p id="dustValue">-- µg/m³</p>
+    </div>
   </div>
 
-    </section>
+  <div id="airStatus" class="status-box">
+    AIR QUALITY STATUS
+  </div>
 
-  </main>
-
-  <footer class="footer">
-    <small>ESP8266 / ESP32 • Firebase Realtime Database</small>
-  </footer>
+  <canvas id="trendChart"></canvas>
 
 </div>
 
-<script type="module" src="script.js"></script>
-  <!-- ================= HISTORY & DETAIL SENSOR ================= -->
-<section id="sensor-section">
-  <h2>History & Detail Sensor</h2>
+<!-- ===== HISTORY ===== -->
+<div id="page-history" class="page">
 
-  <!-- CARD SENSOR -->
-  <div class="sensor-cards">
-    <div class="sensor-card" onclick="loadSensorChart('suhu')">
-      <h3>🌡 Suhu</h3>
-      <p id="card-suhu">-- °C</p>
-    </div>
+  <h2>History Data Sensor</h2>
 
-    <div class="sensor-card" onclick="loadSensorChart('kelembaban')">
-      <h3>💧 Kelembaban</h3>
-      <p id="card-kelembaban">-- %</p>
-    </div>
-
-    <div class="sensor-card" onclick="loadSensorChart('pm25')">
-      <h3>🌫 PM2.5</h3>
-      <p id="card-pm25">-- µg/m³</p>
-    </div>
-
-    <div class="sensor-card" onclick="loadSensorChart('gas')">
-      <h3>🧪 Gas (MQ-135)</h3>
-      <p id="card-gas">-- ppm</p>
-    </div>
+  <div class="history-filter">
+    <button onclick="selectSensor('temperature')">Suhu</button>
+    <button onclick="selectSensor('humidity')">Kelembaban</button>
+    <button onclick="selectSensor('gas')">Gas</button>
+    <button onclick="selectSensor('dust')">Debu</button>
   </div>
 
-  <!-- FILTER WAKTU -->
-  <div class="filter-waktu">
+  <div class="history-filter">
     <button onclick="setRange(7)">1 Minggu</button>
     <button onclick="setRange(14)">2 Minggu</button>
     <button onclick="setRange(21)">3 Minggu</button>
     <button onclick="setRange(30)">1 Bulan</button>
   </div>
 
-  <!-- GRAFIK -->
-  <canvas id="detailChart"></canvas>
-</section>
+  <canvas id="historyChart"></canvas>
 
-<!-- Chart Zoom -->
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+</div>
 
-<!-- JS TAMBAHAN -->
-<script src="history.js"></script>
+<!-- ===== SETTINGS ===== -->
+<div id="page-settings" class="page">
+  <h2>Settings</h2>
+  <p>Pengaturan sistem monitoring.</p>
+</div>
+
+<!-- ===== SCRIPT ===== -->
+<script type="module" src="dashboard.js"></script>
+<script type="module" src="history.js"></script>
+
+<script>
+document.querySelectorAll(".nav-link").forEach(link=>{
+  link.addEventListener("click",e=>{
+    e.preventDefault();
+    const target = link.dataset.target;
+
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(target).classList.add("active");
+
+    document.querySelectorAll(".nav-link").forEach(l=>l.classList.remove("active"));
+    link.classList.add("active");
+  });
+});
+</script>
+
 </body>
 </html>
-
-
-
