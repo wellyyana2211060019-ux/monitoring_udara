@@ -1,13 +1,22 @@
 :root {
   /* Default Dark Theme */
-  --bg-color: #022c22;
-  --card-bg: #064e3b;
+   --bg-color: radial-gradient(
+    circle at top,
+    #3f444b 0%,
+    #2b2f36 45%,
+    #15181d 100%
+  );
+  --card-bg: linear-gradient(
+    145deg,
+    #022c22,
+    #020617
+  );
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --accent-color: #4ade80;
   --accent-glow: rgba(74, 222, 128, 0.4);
   --success-color: #22c55e;
-  --card-border: rgba(255, 255, 255, 0.1);
+  --card-border: rgba(255, 255, 255, 0.08);
   --nav-bg: rgba(6, 78, 59, 0.9);
 }
 
@@ -586,3 +595,4 @@ canvas {
 [data-theme="light"] .reset-btn:hover {
   background: rgba(0, 0, 0, 0.05);
 }
+
