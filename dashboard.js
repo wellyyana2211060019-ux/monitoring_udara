@@ -191,7 +191,7 @@ const trendChart = new Chart(ctx, {
         yAxisID: 'y'
       },
       {
-        label: "PM2.5 (µg/m³)",
+        label: "Dust (µg/m³)",
         data: [],
         borderColor: "#a78bfa", // Purple
         backgroundColor: "rgba(167, 139, 250, 0.1)",
