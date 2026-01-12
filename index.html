@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <title>Air Quality Monitoring</title>
@@ -9,100 +10,231 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<!-- ===== NAVBAR ===== -->
-<nav class="navbar">
-  <a class="nav-link active" data-target="page-dashboard">Dashboard</a>
-  <a class="nav-link" data-target="page-history">History</a>
-  <a class="nav-link" data-target="page-settings">Settings</a>
-</nav>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <i class="fa-solid fa-cloud"></i> Air Quality Monitoring
+    </div>
+    <div class="nav-links">
+      <a class="nav-link active" data-target="page-dashboard">Dashboard</a>
+      <a class="nav-link" data-target="page-history">History</a>
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+    </div>
+  </nav>
 
-<!-- ===== DASHBOARD ===== -->
-<div id="page-dashboard" class="page active">
+  <!-- ===== DASHBOARD ===== -->
+  <div id="page-dashboard" class="page active">
 
-  <h2>Dashboard Monitoring</h2>
+    <!-- Metric Cards Container -->
+    <div class="cards">
 
-  <div class="cards">
-    <div class="card">
-      <h4>Suhu</h4>
-      <p id="tempValue">-- °C</p>
+      <!-- Temperature Card -->
+      <div class="card" id="card-temp" onclick="selectMetric('temp')">
+        <div class="card-header">
+          <h4>Temperature</h4>
+          <i class="fa-solid fa-temperature-high card-icon"></i>
+        </div>
+        <div class="card-body">
+          <p id="tempValue" class="metric-value">--°C</p>
+          <div class="trend-indicator">
+            <i class="fa-solid fa-arrow-up"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Humidity Card -->
+      <div class="card" id="card-hum" onclick="selectMetric('hum')">
+        <div class="card-header">
+          <h4>Kelembaban</h4>
+          <i class="fa-solid fa-droplet card-icon"></i>
+        </div>
+        <div class="card-body">
+          <p id="humValue" class="metric-value">--%</p>
+          <div class="trend-indicator">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gas Card -->
+      <div class="card" id="card-gas" onclick="selectMetric('gas')">
+        <div class="card-header">
+          <h4>Gas (CO)</h4>
+          <i class="fa-solid fa-cloud card-icon"></i>
+        </div>
+        <div class="card-body">
+          <p id="gasValue" class="metric-value">0.00 ppm</p>
+          <small id="gasType" class="metric-sub">Healthy</small>
+        </div>
+      </div>
+
+      <!-- PM2.5 Card -->
+      <div class="card" id="card-dust" onclick="selectMetric('dust')">
+        <div class="card-header">
+          <h4>PM2.5</h4>
+          <i class="fa-solid fa-wind card-icon"></i>
+        </div>
+        <div class="card-body">
+          <p id="dustValue" class="metric-value">-- µg/m³</p>
+          <div class="trend-indicator">
+            <i class="fa-solid fa-viruses"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detection Gases Card -->
+      <div class="card card-wide">
+        <div class="card-header">
+          <h4>Detected Gases</h4>
+          <i class="fa-solid fa-wind card-icon"></i>
+        </div>
+        <div class="card-body-list">
+          <div class="gas-item">
+            <span class="gas-name">CO₂</span>
+            <span id="co2Value" class="gas-value">-- <small>ppm</small></span>
+          </div>
+          <div class="gas-item">
+            <span class="gas-name">CO</span>
+            <span id="coValue" class="gas-value">-- <small>ppm</small></span>
+          </div>
+          <div class="gas-item">
+            <span class="gas-name">NO₂</span>
+            <span id="no2Value" class="gas-value">-- <small>ppm</small></span>
+          </div>
+          <div class="gas-item">
+            <span class="gas-name">SO₂</span>
+            <span id="so2Value" class="gas-value">-- <small>ppm</small></span>
+          </div>
+          <div class="gas-item">
+            <span class="gas-name">O₃</span>
+            <span id="o3Value" class="gas-value">-- <small>ppm</small></span>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="card">
-      <h4>Kelembaban</h4>
-      <p id="humValue">-- %</p>
+    <!-- AQI Card -->
+    <div class="aqi-card" id="aqiCard">
+      <div class="aqi-main">
+        <div class="aqi-number" id="aqiValue">--</div>
+        <div class="aqi-text">
+          <h3 id="aqiStatus">Loading...</h3>
+          <p>Air Quality Index</p>
+        </div>
+      </div>
+      <button class="aqi-info-btn" id="openModalBtn">
+        <i class="fa-regular fa-circle-question"></i> Apa artinya?
+      </button>
     </div>
 
-    <div class="card">
-      <h4>Gas</h4>
-      <p id="gasValue">-- PPM</p>
-      <small id="gasType">-</small>
+    <div class="chart-controls" style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+      <button class="reset-btn" onclick="selectMetric('all')">Show All Metrics</button>
+    </div>
+    <canvas id="trendChart"></canvas>
+
+  </div>
+
+  <!-- ===== HISTORY ===== -->
+  <div id="page-history" class="page">
+
+    <h2>History Data Sensor</h2>
+
+    <div class="cards">
+      <!-- Temperature Card -->
+      <div class="card active-card" id="hist-temp" onclick="selectSensor('temperature')">
+        <div class="card-header">
+          <h4>Temperature</h4>
+          <i class="fa-solid fa-temperature-high card-icon"></i>
+        </div>
+      </div>
+
+      <!-- Humidity Card -->
+      <div class="card" id="hist-humidity" onclick="selectSensor('humidity')">
+        <div class="card-header">
+          <h4>Kelembaban</h4>
+          <i class="fa-solid fa-droplet card-icon"></i>
+        </div>
+      </div>
+
+      <!-- Gas Card -->
+      <div class="card" id="hist-gas" onclick="selectSensor('gas')">
+        <div class="card-header">
+          <h4>Gas</h4>
+          <i class="fa-solid fa-cloud card-icon"></i>
+        </div>
+      </div>
+
+      <!-- PM2.5 Card -->
+      <div class="card" id="hist-dust" onclick="selectSensor('dust')">
+        <div class="card-header">
+          <h4>PM2.5</h4>
+          <i class="fa-solid fa-wind card-icon"></i>
+        </div>
+      </div>
     </div>
 
-    <div class="card">
-      <h4>Debu</h4>
-      <p id="dustValue">-- µg/m³</p>
+    <div class="history-filter">
+      <button onclick="setRange(7)">1 Minggu</button>
+      <button onclick="setRange(14)">2 Minggu</button>
+      <button onclick="setRange(21)">3 Minggu</button>
+      <button onclick="setRange(30)">1 Bulan</button>
+    </div>
+
+    <canvas id="historyChart"></canvas>
+
+  </div>
+
+  <!-- ===== SCRIPT ===== -->
+  <script type="module" src="dashboard.js"></script>
+  <script type="module" src="history.js"></script>
+
+  <script>
+    document.querySelectorAll(".nav-link").forEach(link => {
+      link.addEventListener("click", e => {
+        e.preventDefault();
+        const target = link.dataset.target;
+
+        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+        document.getElementById(target).classList.add("active");
+
+        document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
+        link.classList.add("active");
+      });
+    });
+  </script>
+
+  <!-- AQI Modal -->
+  <div id="aqiModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Good</h2>
+        <span class="close-btn">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="aqi-range-display">AQI: <span id="modalAqiRange">0-50</span></div>
+        <h4>Implikasi Kesehatan</h4>
+        <p id="modalHealth">Kualitas udara dianggap memuaskan, dan polusi udara menimbulkan sedikit atau tidak ada
+          risiko.</p>
+
+        <h4>Rekomendasi Tindakan</h4>
+        <div class="recommendations" id="modalActions">
+          <!-- Icons added via JS or static -->
+          <p>Nikmati aktivitas luar ruangan Anda.</p>
+        </div>
+      </div>
     </div>
   </div>
-
-  <div id="airStatus" class="status-box">
-    AIR QUALITY STATUS
-  </div>
-
-  <canvas id="trendChart"></canvas>
-
-</div>
-
-<!-- ===== HISTORY ===== -->
-<div id="page-history" class="page">
-
-  <h2>History Data Sensor</h2>
-
-  <div class="history-filter">
-    <button onclick="selectSensor('temperature')">Suhu</button>
-    <button onclick="selectSensor('humidity')">Kelembaban</button>
-    <button onclick="selectSensor('gas')">Gas</button>
-    <button onclick="selectSensor('dust')">Debu</button>
-  </div>
-
-  <div class="history-filter">
-    <button onclick="setRange(7)">1 Minggu</button>
-    <button onclick="setRange(14)">2 Minggu</button>
-    <button onclick="setRange(21)">3 Minggu</button>
-    <button onclick="setRange(30)">1 Bulan</button>
-  </div>
-
-  <canvas id="historyChart"></canvas>
-
-</div>
-
-<!-- ===== SETTINGS ===== -->
-<div id="page-settings" class="page">
-  <h2>Settings</h2>
-  <p>Pengaturan sistem monitoring.</p>
-</div>
-
-<!-- ===== SCRIPT ===== -->
-<script type="module" src="dashboard.js"></script>
-<script type="module" src="history.js"></script>
-
-<script>
-document.querySelectorAll(".nav-link").forEach(link=>{
-  link.addEventListener("click",e=>{
-    e.preventDefault();
-    const target = link.dataset.target;
-
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    document.getElementById(target).classList.add("active");
-
-    document.querySelectorAll(".nav-link").forEach(l=>l.classList.remove("active"));
-    link.classList.add("active");
-  });
-});
-</script>
 
 </body>
+
 </html>
