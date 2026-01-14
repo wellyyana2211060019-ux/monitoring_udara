@@ -273,6 +273,14 @@ let latestData = {
   hum: 0,
   dust: 0
 };
+function resolveGasValue(data, keys) {
+  for (const key of keys) {
+    if (data[key] !== undefined && data[key] !== null && data[key] !== 0) {
+      return data[key];
+    }
+  }
+  return "--";
+}
 
 onValue(ref(db, "sensor"), snap => {
   const d = snap.val();
@@ -295,11 +303,31 @@ onValue(ref(db, "sensor"), snap => {
   gasType.textContent = jenisGas(gas);
 
   // Update Detailed Gases in Settings
-  if (co2Value) co2Value.innerHTML = (d.co2 || "--") + " <small>ppm</small>";
-  if (coValue) coValue.innerHTML = (d.co || "--") + " <small>ppm</small>";
-  if (no2Value) no2Value.innerHTML = (d.no2 || "--") + " <small>ppm</small>";
-  if (so2Value) so2Value.innerHTML = (d.so2 || "--") + " <small>ppm</small>";
-  if (o3Value) o3Value.innerHTML = (d.o3 || "--") + " <small>ppm</small>";
+if (co2Value) {
+  const co2 = resolveGasValue(d, ["co2", "gas"]);
+  co2Value.innerHTML = co2 + " <small>ppm</small>";
+}
+
+if (coValue) {
+  const co = resolveGasValue(d, ["co"]);
+  coValue.innerHTML = co + " <small>ppm</small>";
+}
+
+if (no2Value) {
+  const no2 = resolveGasValue(d, ["no2"]);
+  no2Value.innerHTML = no2 + " <small>ppm</small>";
+}
+
+if (so2Value) {
+  const so2 = resolveGasValue(d, ["so2"]);
+  so2Value.innerHTML = so2 + " <small>ppm</small>";
+}
+
+if (o3Value) {
+  const o3 = resolveGasValue(d, ["o3"]);
+  o3Value.innerHTML = o3 + " <small>ppm</small>";
+}
+;
 
   // Update AQI
   const aqiResult = calculateAQI(dust);
