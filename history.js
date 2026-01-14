@@ -1,6 +1,6 @@
 import { getDatabase, ref, onValue, query, limitToLast }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
+let historyUnsubscribe = null;
 const db = getDatabase();
 
 let selectedSensor = "gas";
@@ -35,17 +35,29 @@ window.setRange = d => {
   rangeDay = d;
   loadHistory();
 };
-
 function loadHistory() {
   const ctx = document.getElementById("historyChart").getContext("2d");
   const q = query(ref(db, "history"), limitToLast(rangeDay * 24));
 
-  onValue(q, snap => {
-    let labels = [], data = [];
+  // 🔥 HENTIKAN LISTENER LAMA (PENTING REALTIME)
+  if (historyUnsubscribe) historyUnsubscribe();
+
+  historyUnsubscribe = onValue(q, snap => {
+    let labels = [];
+    let data = [];
 
     snap.forEach(child => {
       const d = child.val();
-      labels.push(new Date(d.timestamp * 1000).toLocaleDateString());
+
+      // ⛔ Skip jika data sensor tidak ada
+      if (d[selectedSensor] === undefined || d[selectedSensor] === null) return;
+
+      labels.push(
+        d.timestamp
+          ? new Date(d.timestamp * 1000).toLocaleDateString()
+          : ""
+      );
+
       data.push(d[selectedSensor]);
     });
 
@@ -58,17 +70,25 @@ function loadHistory() {
         datasets: [{
           label: selectedSensor.toUpperCase(),
           data,
-          tension: .4
+          tension: 0.4
         }]
       },
       options: {
+        responsive: true,
         plugins: {
+          legend: { display: true },
           zoom: {
             pan: { enabled: true, mode: "x" },
             zoom: { wheel: { enabled: true }, mode: "x" }
           }
+        },
+        scales: {
+          y: { beginAtZero: true }
         }
       }
     });
   });
 }
+
+
+   
