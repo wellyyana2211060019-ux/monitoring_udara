@@ -160,6 +160,9 @@ function updateModal(catKey) {
   modalActions.innerHTML = `<p>${data.action}</p>`;
 }
 
+const MAX_DATA_POINTS = 300; // 5 minutes (300 seconds)
+let isInteracting = false;
+
 const ctx = document.getElementById("trendChart").getContext("2d");
 const trendChart = new Chart(ctx, {
   type: "line",
@@ -231,6 +234,25 @@ const trendChart = new Chart(ctx, {
     plugins: {
       legend: {
         labels: { color: "#94a3b8" }
+      },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'x', // Allow panning in x-direction only
+          onPanStart: () => { isInteracting = true; },
+          onPanComplete: () => { isInteracting = true; } // Keep interacting state true until reset
+        },
+        zoom: {
+          wheel: {
+            enabled: true,
+          },
+          pinch: {
+            enabled: true
+          },
+          mode: 'x',
+          onZoomStart: () => { isInteracting = true; },
+          onZoomComplete: () => { isInteracting = true; }
+        }
       }
     }
   }
@@ -265,6 +287,26 @@ window.selectMetric = function (metric) {
 
   trendChart.update();
 };
+
+// Reset Zoom Function
+const resetZoomBtn = document.getElementById("resetZoomBtn");
+if (resetZoomBtn) {
+  resetZoomBtn.addEventListener("click", () => {
+    isInteracting = false;
+    trendChart.resetZoom();
+    // Immediately snap to latest window
+    const dataLength = trendChart.data.labels.length;
+    if (dataLength > 60) {
+      trendChart.options.scales.x.min = trendChart.data.labels[dataLength - 60];
+      trendChart.options.scales.x.max = trendChart.data.labels[dataLength - 1];
+    } else {
+      delete trendChart.options.scales.x.min;
+      delete trendChart.options.scales.x.max;
+    }
+    trendChart.update();
+  });
+}
+
 
 // Store latest data
 let latestData = {
@@ -303,31 +345,31 @@ onValue(ref(db, "sensor"), snap => {
   gasType.textContent = jenisGas(gas);
 
   // Update Detailed Gases in Settings
-if (co2Value) {
-  const co2 = resolveGasValue(d, ["co2", "gas"]);
-  co2Value.innerHTML = co2 + " <small>ppm</small>";
-}
+  if (co2Value) {
+    const co2 = resolveGasValue(d, ["co2", "gas"]);
+    co2Value.innerHTML = co2 + " <small>ppm</small>";
+  }
 
-if (coValue) {
-  const co = resolveGasValue(d, ["co"]);
-  coValue.innerHTML = co + " <small>ppm</small>";
-}
+  if (coValue) {
+    const co = resolveGasValue(d, ["co"]);
+    coValue.innerHTML = co + " <small>ppm</small>";
+  }
 
-if (no2Value) {
-  const no2 = resolveGasValue(d, ["no2"]);
-  no2Value.innerHTML = no2 + " <small>ppm</small>";
-}
+  if (no2Value) {
+    const no2 = resolveGasValue(d, ["no2"]);
+    no2Value.innerHTML = no2 + " <small>ppm</small>";
+  }
 
-if (so2Value) {
-  const so2 = resolveGasValue(d, ["so2"]);
-  so2Value.innerHTML = so2 + " <small>ppm</small>";
-}
+  if (so2Value) {
+    const so2 = resolveGasValue(d, ["so2"]);
+    so2Value.innerHTML = so2 + " <small>ppm</small>";
+  }
 
-if (o3Value) {
-  const o3 = resolveGasValue(d, ["o3"]);
-  o3Value.innerHTML = o3 + " <small>ppm</small>";
-}
-;
+  if (o3Value) {
+    const o3 = resolveGasValue(d, ["o3"]);
+    o3Value.innerHTML = o3 + " <small>ppm</small>";
+  }
+  ;
 
   // Update AQI
   const aqiResult = calculateAQI(dust);
@@ -344,7 +386,8 @@ if (o3Value) {
 setInterval(() => {
   const now = new Date().toLocaleTimeString();
 
-  // Push latest known data
+  // Push latest known data (ALWAYS push provided not at cap)
+  // Actually we should always push and shift if > MAX
   trendChart.data.labels.push(now);
 
   // 0: Gas, 1: Temp, 2: Hum, 3: Dust
@@ -353,14 +396,28 @@ setInterval(() => {
   trendChart.data.datasets[2].data.push(latestData.hum);
   trendChart.data.datasets[3].data.push(latestData.dust);
 
-  // Maintain Sliding Window (60 seconds)
-  if (trendChart.data.labels.length > 60) {
+  // Maintain Sliding Window (Hard Limit = 300)
+  if (trendChart.data.labels.length > MAX_DATA_POINTS) {
     trendChart.data.labels.shift();
     trendChart.data.datasets.forEach(ds => ds.data.shift());
   }
 
+  // Auto-scroll Viewport if NOT interactings
+  if (!isInteracting) {
+    const dataLength = trendChart.data.labels.length;
+    if (dataLength > 60) {
+      // View specifically the last 60 points
+      trendChart.options.scales.x.min = trendChart.data.labels[dataLength - 60];
+      trendChart.options.scales.x.max = trendChart.data.labels[dataLength - 1];
+    } else {
+      // Just show what we have if less than 60
+      delete trendChart.options.scales.x.min;
+      delete trendChart.options.scales.x.max;
+    }
+  }
+
   // Update Chart
-  trendChart.update();
+  trendChart.update('none'); // 'none' mode for better performance on frequent updates
 }, 1000);
 
 
