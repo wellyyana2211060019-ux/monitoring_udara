@@ -58,7 +58,7 @@ function loadHistory() {
   historyUnsubscribe = onValue(q, snap => {
     let labels = [];
     let data = [];
-    
+
     snap.forEach(child => {
       const d = child.val();
       const key = sensorKeyMap[selectedSensor];
@@ -70,22 +70,7 @@ function loadHistory() {
       );
 
       data.push(d[key]);
-      snap.forEach(child => {
-  const d = child.val();
-  console.log("➡️ ROW:", d);
-
-  const key = sensorKeyMap[selectedSensor];
-  console.log("➡️ SENSOR KEY:", key, "VALUE:", d[key]);
-
-  if (!d || d[key] === undefined || d.timestamp === undefined) return;
-
     });
-      historyUnsubscribe = onValue(q, snap => {
-  console.log("🔥 SNAP EXISTS:", snap.exists());
-  console.log("🔥 SNAP RAW:", snap.val());
-
-  let labels = [];
-  let data = [];
 
     if (historyChart) historyChart.destroy();
 
@@ -122,4 +107,3 @@ function loadHistory() {
 
 // === Load default ===
 loadHistory();
-
