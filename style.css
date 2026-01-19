@@ -596,3 +596,39 @@ canvas {
   background: rgba(0, 0, 0, 0.05);
 }
 
+
+/* Date Input Styling */
+input[type="date"] {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+input[type="date"]:hover,
+input[type="date"]:focus {
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+  box-shadow: 0 0 5px var(--accent-glow);
+}
+
+/* Calendar Icon Visibility in Dark Mode */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+input[type="date"]:hover::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}
+
+[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+}
