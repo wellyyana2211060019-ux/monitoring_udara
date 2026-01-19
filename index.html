@@ -9,10 +9,13 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -184,20 +187,33 @@
       </div>
     </div>
 
-    <div class="history-filter">
-      <button onclick="setRange(7)">1 Minggu</button>
-      <button onclick="setRange(14)">2 Minggu</button>
-      <button onclick="setRange(21)">3 Minggu</button>
-      <button onclick="setRange(30)">1 Bulan</button>
+    <div class="history-filter"
+      style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 20px;">
+      <div class="date-group">
+        <label>Start:</label>
+        <input type="date" id="historyStartDate">
+      </div>
+      <div class="date-group">
+        <label>End:</label>
+        <input type="date" id="historyEndDate">
+      </div>
+      <button id="historyFilterBtn" class="primary-btn">Filter</button>
+
+      <div class="export-group" style="margin-left: auto;">
+        <button id="exportCsvBtn" class="secondary-btn"><i class="fa-solid fa-file-csv"></i> CSV</button>
+        <button id="exportExcelBtn" class="secondary-btn"><i class="fa-solid fa-file-excel"></i> Excel</button>
+      </div>
     </div>
 
-    <canvas id="historyChart"></canvas>
+    <div class="chart-container" style="position: relative; height: 60vh; width: 100%;">
+      <canvas id="historyChart"></canvas>
+    </div>
 
   </div>
 
   <!-- ===== SCRIPT ===== -->
-  <script type="module" src="dashboard.js"></script>
-  <script type="module" src="history.js"></script>
+  <script type="module" src="dashboard.js?v=2"></script>
+  <script type="module" src="history.js?v=2"></script>
 
   <script>
     document.querySelectorAll(".nav-link").forEach(link => {
