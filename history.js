@@ -1,31 +1,37 @@
 import { getDatabase, ref, onValue, query, limitToLast }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-let historyUnsubscribe = null;
+
 const db = getDatabase();
 
+let historyUnsubscribe = null;
 let selectedSensor = "gas";
 let rangeDay = 30;
 let historyChart;
 
+// === Mapping nama sensor (HTML → Firebase) ===
+const sensorKeyMap = {
+  temperature: "temperature",
+  humidity: "humidity",
+  gas: "gas",
+  dust: "dust"
+};
+
 window.selectSensor = s => {
   selectedSensor = s;
 
-  // Update visual state
   const map = {
-    'temperature': 'hist-temp',
-    'humidity': 'hist-humidity',
-    'gas': 'hist-gas',
-    'dust': 'hist-dust'
+    temperature: "hist-temp",
+    humidity: "hist-humidity",
+    gas: "hist-gas",
+    dust: "hist-dust"
   };
 
-  // Remove active form all
   Object.values(map).forEach(id => {
-    document.getElementById(id).classList.remove('active-card');
+    document.getElementById(id).classList.remove("active-card");
   });
 
-  // Add to selected
   if (map[s]) {
-    document.getElementById(map[s]).classList.add('active-card');
+    document.getElementById(map[s]).classList.add("active-card");
   }
 
   loadHistory();
@@ -35,11 +41,18 @@ window.setRange = d => {
   rangeDay = d;
   loadHistory();
 };
-function loadHistory() {
-  const ctx = document.getElementById("historyChart").getContext("2d");
-  const q = query(ref(db, "history"), limitToLast(rangeDay * 24));
 
-  // 🔥 HENTIKAN LISTENER LAMA (PENTING REALTIME)
+function loadHistory() {
+  const canvas = document.getElementById("historyChart");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  // ⏱️ estimasi: 1 data / detik
+  const limit = rangeDay * 24 * 60 * 60;
+
+  const q = query(ref(db, "history"), limitToLast(limit));
+
   if (historyUnsubscribe) historyUnsubscribe();
 
   historyUnsubscribe = onValue(q, snap => {
@@ -48,17 +61,15 @@ function loadHistory() {
 
     snap.forEach(child => {
       const d = child.val();
+      const key = sensorKeyMap[selectedSensor];
 
-      // ⛔ Skip jika data sensor tidak ada
-      if (d[selectedSensor] === undefined || d[selectedSensor] === null) return;
+      if (!d || d[key] === undefined || d.timestamp === undefined) return;
 
       labels.push(
-        d.timestamp
-          ? new Date(d.timestamp * 1000).toLocaleDateString()
-          : ""
+        new Date(d.timestamp).toLocaleString("id-ID")
       );
 
-      data.push(d[selectedSensor]);
+      data.push(d[key]);
     });
 
     if (historyChart) historyChart.destroy();
@@ -70,11 +81,14 @@ function loadHistory() {
         datasets: [{
           label: selectedSensor.toUpperCase(),
           data,
-          tension: 0.4
+          tension: 0.4,
+          borderWidth: 2,
+          pointRadius: 0
         }]
       },
       options: {
         responsive: true,
+        animation: false,
         plugins: {
           legend: { display: true },
           zoom: {
@@ -83,12 +97,14 @@ function loadHistory() {
           }
         },
         scales: {
-          y: { beginAtZero: true }
+          y: { beginAtZero: true },
+          x: { ticks: { maxTicksLimit: 10 } }
         }
       }
     });
   });
 }
 
+// === Load default ===
+loadHistory();
 
-   
