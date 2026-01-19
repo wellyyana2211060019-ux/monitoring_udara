@@ -1,4 +1,8 @@
-import { getDatabase, ref, onValue, query, limitToLast }
+import { getDatabase, ref, onValue, push, set }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+// === ADDED: import yang kurang (WAJIB) ===
+import { query, limitToLast }
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const db = getDatabase();
@@ -7,6 +11,7 @@ let historyUnsubscribe = null;
 let selectedSensor = "gas";
 let rangeDay = 30;
 let historyChart;
+
 
 // === Mapping nama sensor (HTML → Firebase) ===
 const sensorKeyMap = {
@@ -51,11 +56,18 @@ function loadHistory() {
   // ⏱️ estimasi: 1 data / detik
   const limit = rangeDay * 24 * 60 * 60;
 
-  const q = query(ref(db, "history"), limitToLast(limit));
+  // === ADDED: fallback path (aman walau tidak dipakai) ===
+  const historyPath = "history";
+
+  const q = query(ref(db, historyPath), limitToLast(limit));
 
   if (historyUnsubscribe) historyUnsubscribe();
 
   historyUnsubscribe = onValue(q, snap => {
+
+    // === ADDED: DEBUG ===
+    console.log("HISTORY RAW SNAPSHOT =", snap.val());
+
     let labels = [];
     let data = [];
 
@@ -107,3 +119,10 @@ function loadHistory() {
 
 // === Load default ===
 loadHistory();
+
+
+// === ADDED: force reload (Firebase kadang telat kirim data) ===
+setTimeout(() => {
+  console.log("Force reload history...");
+  loadHistory();
+}, 2000);
