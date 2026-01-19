@@ -426,3 +426,31 @@ function updateChartsTheme(isLight) {
     setTheme(false);
   }
 })();
+// === AUTO-SAVE SENSOR → HISTORY (TAMBAHKAN DI dashboard.js) ===
+const sensorRef = ref(db, "sensor");
+
+onValue(sensorRef, snap => {
+  const d = snap.val();
+  if (!d) return;
+
+  if (
+    d.temperature === undefined ||
+    d.humidity === undefined ||
+    d.gas === undefined ||
+    d.dust === undefined
+  ) return;
+
+  const historyRef = ref(db, "history");
+
+  const payload = {
+    temperature: d.temperature,
+    humidity: d.humidity,
+    gas: d.gas,
+    dust: d.dust,
+    timestamp: d.timestamp
+      ? d.timestamp * 1000   // detik → ms
+      : Date.now()
+  };
+
+  push(historyRef, payload);
+});
