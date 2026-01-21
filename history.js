@@ -55,6 +55,13 @@ const DataService = {
     State.unsubscribe = onValue(q, (snapshot) => {
       const processed = this.processSnapshot(snapshot);
       callback(processed);
+    }, (error) => {
+      console.error("Firebase Query Error:", error);
+      if (error.code === "PERMISSION_DENIED") {
+        alert("Permission Denied: Check Firebase Rules.");
+      } else {
+        alert("Query Failed. Check console (Missing Index?).");
+      }
     });
   },
 
@@ -69,11 +76,16 @@ const DataService = {
       if (!d || !d.timestamp) return;
 
       // Handle both numeric milliseconds and ISO date strings
-      const ts = new Date(d.timestamp).getTime();
+      let rawVal = d.timestamp;
+      // If valid number but small (likely seconds), convert to ms
+      if (typeof rawVal === 'number' && rawVal < 10000000000) {
+        rawVal *= 1000;
+      }
+      const ts = new Date(rawVal).getTime();
 
       // Basic check
       if (isNaN(ts) || ts < CONFIG.minYear) {
-        // console.warn("Invalid TS:", d.timestamp); // Optional debug
+        // console.warn("Invalid TS:", d.timestamp); 
         return;
       }
 
@@ -393,4 +405,3 @@ setTimeout(() => {
     UI.triggerLoad();
   }
 }, 3000);
-
