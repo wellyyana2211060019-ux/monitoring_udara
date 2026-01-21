@@ -632,3 +632,22 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator {
 [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0);
 }
+/* =================================================
+   TAMBAHAN WARNA STATUS (SINKRON ARDUINO)
+================================================= */
+
+.status-good {
+  background-color: #22c55e !important;
+  color: #000 !important;
+}
+
+.status-warning {
+  background-color: #facc15 !important;
+  color: #000 !important;
+}
+
+.status-bad {
+  background-color: #ef4444 !important;
+  color: #fff !important;
+}
+
