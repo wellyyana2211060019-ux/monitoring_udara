@@ -508,6 +508,4 @@ onValue(sensorRef, snap => {
       ? d.timestamp * 1000   // detik → ms
       : Date.now()
   };
-
-  push(historyRef, payload);
 });
