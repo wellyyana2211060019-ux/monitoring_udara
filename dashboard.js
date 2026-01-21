@@ -541,3 +541,19 @@ function syncStatusFromArduino(statusArduino) {
     statusCard.classList.add("status-bad");
   }
 }
+/* =================================================
+   LISTENER KHUSUS STATUS ARDUINO
+   (LISTENER LAMA TETAP JALAN)
+================================================= */
+
+import { ref, onValue } from
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const statusArduinoRef = ref(db, "sensor/status");
+
+onValue(statusArduinoRef, (snapshot) => {
+  const statusArduino = snapshot.val();
+  if (statusArduino) {
+    syncStatusFromArduino(statusArduino);
+  }
+});
