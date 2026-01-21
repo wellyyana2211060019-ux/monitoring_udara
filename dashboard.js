@@ -48,52 +48,25 @@ const aqiStatus = document.getElementById("aqiStatus");
 const aqiCard = document.getElementById("aqiCard");
 
 /* =========================
-   AQI DATA
+   ISPU NASIONAL (PM2.5)
 ========================= */
-const aqiData = {
-  good: { label: "Baik", class: "aqi-good" },
-  moderate: { label: "Sedang", class: "aqi-moderate" },
-  sensitive: { label: "Tidak Sehat Sensitif", class: "aqi-sensitive" },
-  unhealthy: { label: "Tidak Sehat", class: "aqi-unhealthy" },
-  very: { label: "Sangat Tidak Sehat", class: "aqi-very-unhealthy" },
-  hazardous: { label: "Berbahaya", class: "aqi-hazardous" }
-};
-
-let currentAqiCategory = "good";
-
-/* =========================
-   AQI CALCULATION
-========================= */
-function calculateAQI(dust) {
-  let aqi = 0;
-  let category = "good";
-
-  if (dust <= 12) {
-    aqi = map(dust, 0, 12, 0, 50);
-    category = "good";
-  } else if (dust <= 35.4) {
-    aqi = map(dust, 12.1, 35.4, 51, 100);
-    category = "moderate";
-  } else if (dust <= 55.4) {
-    aqi = map(dust, 35.5, 55.4, 101, 150);
-    category = "sensitive";
-  } else if (dust <= 150.4) {
-    aqi = map(dust, 55.5, 150.4, 151, 200);
-    category = "unhealthy";
-  } else if (dust <= 250.4) {
-    aqi = map(dust, 150.5, 250.4, 201, 300);
-    category = "very";
-  } else {
-    aqi = 500;
-    category = "hazardous";
+const ispuMap = {
+  "BAIK": {
+    label: "Baik",
+    class: "aqi-good",
+    aqi: 50
+  },
+  "SEDANG": {
+    label: "Sedang",
+    class: "aqi-moderate",
+    aqi: 100
+  },
+  "BURUK": {
+    label: "Tidak Sehat",
+    class: "aqi-unhealthy",
+    aqi: 200
   }
-
-  return { val: Math.round(aqi), cat: category };
-}
-
-function map(x, in_min, in_max, out_min, out_max) {
-  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
+};
 
 /* =========================
    REALTIME SENSOR
@@ -115,6 +88,7 @@ onValue(ref(db, "sensor"), snap => {
 
   const gas = Math.round(d.gas);
   const dust = d.dust || 0;
+  const statusArduino = d.status || "BAIK";
 
   latestData = {
     gas,
@@ -135,17 +109,21 @@ onValue(ref(db, "sensor"), snap => {
   if (so2Value) so2Value.innerHTML = resolveGasValue(d, ["so2"]) + " ppm";
   if (o3Value) o3Value.innerHTML = resolveGasValue(d, ["o3"]) + " ppm";
 
-  const aqiResult = calculateAQI(dust);
-  currentAqiCategory = aqiResult.cat;
+  /* =========================
+     🔥 SINKRON STATUS ARDUINO
+     ISPU NASIONAL
+  ========================= */
+  const s = ispuMap[statusArduino];
 
-  aqiValue.textContent = aqiResult.val;
-  aqiStatus.textContent = aqiData[currentAqiCategory].label;
-  aqiCard.className = "aqi-card " + aqiData[currentAqiCategory].class;
+  if (s) {
+    aqiValue.textContent = s.aqi;
+    aqiStatus.textContent = s.label;
+    aqiCard.className = "aqi-card " + s.class;
+  }
 });
 
 /* =========================
-   🔥 FIXED HISTORY LOGIC
-   SIMPAN HANYA SAAT STATUS BERUBAH
+   HISTORY (TETAP)
 ========================= */
 let lastStatus = null;
 
@@ -154,7 +132,7 @@ onValue(ref(db, "sensor"), snap => {
   if (!d || !d.status) return;
 
   if (lastStatus === null) {
-    lastStatus = d.status; // sync awal
+    lastStatus = d.status;
     return;
   }
 
@@ -168,7 +146,6 @@ onValue(ref(db, "sensor"), snap => {
       timestamp: d.timestamp ? d.timestamp * 1000 : Date.now()
     });
 
-    console.log("✅ HISTORY DISIMPAN:", d.status);
     lastStatus = d.status;
   }
 });
