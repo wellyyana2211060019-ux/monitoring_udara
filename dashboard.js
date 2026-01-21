@@ -511,3 +511,33 @@ onValue(sensorRef, snap => {
 
   push(historyRef, payload);
 });
+/* =================================================
+   TAMBAHAN SINKRON STATUS DARI ARDUINO
+   (TIDAK MENGUBAH KODE SEBELUMNYA)
+================================================= */
+
+function syncStatusFromArduino(statusArduino) {
+  const statusText = document.getElementById("airStatus");
+  const statusCard = document.getElementById("statusCard");
+
+  if (!statusText || !statusCard) return;
+
+  statusCard.classList.remove(
+    "status-good",
+    "status-warning",
+    "status-bad"
+  );
+
+  if (statusArduino === "BAIK") {
+    statusText.textContent = "Baik";
+    statusCard.classList.add("status-good");
+  } 
+  else if (statusArduino === "KURANG BAIK") {
+    statusText.textContent = "Kurang Baik";
+    statusCard.classList.add("status-warning");
+  } 
+  else if (statusArduino === "BURUK") {
+    statusText.textContent = "Buruk";
+    statusCard.classList.add("status-bad");
+  }
+}
