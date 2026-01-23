@@ -1,18 +1,17 @@
 import {
-  getDatabase,
   ref,
   onValue,
   query,
-  orderByChild,
+  orderByKey,
   startAt,
   endAt
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { db } from "./config.js";
 
 /* ==========================================
    HISTORY MODULE (READ ONLY)
    ========================================== */
 
-const db = getDatabase();
 
 /* =============================
    CONFIG
@@ -42,11 +41,15 @@ const DataService = {
   fetchRange(startMs, endMs, cb) {
     if (State.unsubscribe) State.unsubscribe();
 
+    // Convert MS to Seconds because C++ uses timestamp (seconds) as key
+    const startSec = String(Math.floor(startMs / 1000));
+    const endSec = String(Math.floor(endMs / 1000));
+
     const q = query(
       ref(db, "history"),
-      orderByChild("timestamp"),
-      startAt(startMs),
-      endAt(endMs)
+      orderByKey(),
+      startAt(startSec),
+      endAt(endSec)
     );
 
     State.unsubscribe = onValue(q, snap => {
@@ -62,10 +65,10 @@ const DataService = {
 
     snapshot.forEach(child => {
       const d = child.val();
-      if (!d || !d.timestamp) return;
+      if (!d) return;
 
-      let ts = d.timestamp;
-      if (typeof ts === "number" && ts < 10000000000) ts *= 1000;
+      let ts = Number(child.key);
+      if (!isNaN(ts) && ts < 10000000000) ts *= 1000;
 
       if (isNaN(ts) || ts < CONFIG.minYearMs) return;
 
@@ -172,7 +175,7 @@ const ChartService = {
       }
     });
 
-    window.historyChart = State.chart;
+    window.historyChartInstance = State.chart;
     this.applyTheme();
   },
 
@@ -205,6 +208,12 @@ const UI = {
   bind() {
     document.getElementById("historyFilterBtn")
       ?.addEventListener("click", () => this.load());
+
+    document.getElementById("exportCsvBtn")
+      ?.addEventListener("click", () => this.exportData("csv"));
+
+    document.getElementById("exportExcelBtn")
+      ?.addEventListener("click", () => this.exportData("xlsx"));
   },
 
   setDefaultDate() {
@@ -219,8 +228,8 @@ const UI = {
   },
 
   load() {
-    const s = new Date(document.getElementById("historyStartDate").value).setHours(0,0,0,0);
-    const e = new Date(document.getElementById("historyEndDate").value).setHours(23,59,59,999);
+    const s = new Date(document.getElementById("historyStartDate").value).setHours(0, 0, 0, 0);
+    const e = new Date(document.getElementById("historyEndDate").value).setHours(23, 59, 59, 999);
 
     DataService.fetchRange(s, e, data => {
       State.rawData = data;
@@ -231,6 +240,35 @@ const UI = {
   render() {
     const chartData = DataService.prepareChartData(State.rawData, State.currentSensor);
     ChartService.render(chartData);
+  },
+
+  exportData(type) {
+    if (!State.rawData || State.rawData.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
+
+    const data = State.rawData.map(row => ({
+      Date: row.dateStr,
+      Timestamp: row.ts,
+      Temperature: row.temperature,
+      Humidity: row.humidity,
+      Gas: row.gas,
+      Dust: row.dust,
+      Status: row.status
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sensor Data");
+
+    const fileName = `Sensor_Data_${new Date().toISOString().split("T")[0]}`;
+
+    if (type === "csv") {
+      XLSX.writeFile(wb, fileName + ".csv");
+    } else {
+      XLSX.writeFile(wb, fileName + ".xlsx");
+    }
   }
 };
 
