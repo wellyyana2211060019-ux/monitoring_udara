@@ -59,39 +59,41 @@ function map(x, in_min, in_max, out_min, out_max) {
 
 function calculateAQI(pm25) {
   let aqi = 0;
-  let cat = "good";
 
   if (pm25 <= 12) {
     aqi = map(pm25, 0, 12, 0, 50);
-    cat = "good";
   } else if (pm25 <= 35.4) {
     aqi = map(pm25, 12.1, 35.4, 51, 100);
-    cat = "moderate";
   } else if (pm25 <= 55.4) {
     aqi = map(pm25, 35.5, 55.4, 101, 150);
-    cat = "sensitive";
   } else if (pm25 <= 150.4) {
     aqi = map(pm25, 55.5, 150.4, 151, 200);
-    cat = "unhealthy";
   } else if (pm25 <= 250.4) {
     aqi = map(pm25, 150.5, 250.4, 201, 300);
-    cat = "very";
   } else {
     aqi = 500;
-    cat = "hazardous";
   }
 
-  return { val: Math.round(aqi), cat };
+  return Math.round(aqi);
 }
 
-const AQI_LABEL = {
-  good: "Baik",
-  moderate: "Sedang",
-  sensitive: "Tidak Sehat (Sensitif)",
-  unhealthy: "Tidak Sehat",
-  very: "Sangat Tidak Sehat",
-  hazardous: "Berbahaya"
+
+// Hitung AQI angka saja
+const aqiNumber = calculateAQI(dust);
+aqiValue.textContent = aqiNumber;
+
+// AQI ikut status Arduino
+aqiStatus.textContent = status;
+
+const AQI_CLASS = {
+  BAIK: "aqi-good",
+  SEDANG: "aqi-moderate",
+  BURUK: "aqi-unhealthy"
 };
+
+aqiCard.className = "aqi-card";
+aqiCard.classList.add(AQI_CLASS[status] || "aqi-good");
+
 
 /* =============================
    REALTIME SENSOR LISTENER
