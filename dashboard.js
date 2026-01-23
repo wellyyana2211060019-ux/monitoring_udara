@@ -86,11 +86,31 @@ onValue(ref(db, "sensor"), snap => {
     BURUK: "status-bad"
   }[status] || "";
 
-  // ===== AQI (INFO ONLY, NOT STATUS) =====
-  const aqi = calculateAQI(dust);
-  aqiValue.textContent = aqi.val;
-  aqiStatus.textContent = AQI_LABEL[aqi.cat];
-  aqiCard.className = "aqi-card aqi-" + aqi.cat;
+  // ===== AQI (SYNC WITH ARDUINO STATUS) =====
+const aqi = calculateAQI(dust);
+aqiValue.textContent = aqi.val;
+
+// Sinkronkan AQI dengan Status Udara (Arduino = Source of Truth)
+const STATUS_TO_AQI = {
+  BAIK: {
+    label: "Baik",
+    class: "aqi-good"
+  },
+  SEDANG: {
+    label: "Sedang",
+    class: "aqi-moderate"
+  },
+  BURUK: {
+    label: "Buruk",
+    class: "aqi-unhealthy"
+  }
+};
+
+const aqiSync = STATUS_TO_AQI[status] || STATUS_TO_AQI["BAIK"];
+
+aqiStatus.textContent = aqiSync.label;
+aqiCard.className = "aqi-card " + aqiSync.class;
+
 
   // ===== SAVE FOR TREND =====
   latestData = { gas, temp, hum, dust, status };
