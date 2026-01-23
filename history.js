@@ -277,6 +277,22 @@ const UI = {
 ============================= */
 window.selectSensor = sensor => {
   State.currentSensor = sensor;
+
+  // Update UI classes
+  document.querySelectorAll("#page-history .card").forEach(c => c.classList.remove("active-card"));
+
+  const map = {
+    temperature: "hist-temp",
+    humidity: "hist-humidity",
+    gas: "hist-gas",
+    dust: "hist-dust"
+  };
+
+  const id = map[sensor];
+  if (id) {
+    document.getElementById(id)?.classList.add("active-card");
+  }
+
   UI.render();
 };
 
