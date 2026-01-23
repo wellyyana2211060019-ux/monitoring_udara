@@ -12,29 +12,9 @@ const airStatus = document.getElementById("airStatus");
 
 const aqiValue = document.getElementById("aqiValue");
 const aqiStatus = document.getElementById("aqiStatus");
-const aqiCard = document.getElementById("aqiCard");
-
 /* =============================
-   THEME LOGIC (EARLY BINDING)
+   THEME LISTENER
 ============================= */
-const themeBtn = document.getElementById("themeToggle");
-const icon = themeBtn?.querySelector("i");
-const html = document.documentElement;
-
-function applyTheme(isLight) {
-  if (isLight) {
-    html.setAttribute("data-theme", "light");
-    icon?.classList.replace("fa-moon", "fa-sun");
-    localStorage.setItem("theme", "light");
-  } else {
-    html.removeAttribute("data-theme");
-    icon?.classList.replace("fa-sun", "fa-moon");
-    localStorage.removeItem("theme");
-  }
-
-  updateCharts(isLight);
-}
-
 function updateCharts(isLight) {
   const textColor = isLight ? "#64748b" : "#94a3b8";
   const gridColor = isLight ? "rgba(0,0,0,.05)" : "rgba(255,255,255,.05)";
@@ -57,20 +37,18 @@ function updateCharts(isLight) {
       window.historyChartInstance.update("none");
     }
   } catch (e) {
-    console.warn("Chart update failed (safe to ignore if charts not loaded yet):", e);
+    console.warn("Chart update failed:", e);
   }
 }
 
-// Init Theme Immediately
-const savedTheme = localStorage.getItem("theme");
-applyTheme(savedTheme === "light");
+// 1. Initial Sync
+const currentThemeIsLight = localStorage.getItem("theme") === "light";
+updateCharts(currentThemeIsLight);
 
-if (themeBtn) {
-  themeBtn.onclick = () => {
-    const isLight = !html.hasAttribute("data-theme");
-    applyTheme(isLight);
-  };
-}
+// 2. Listen for changes from theme.js
+window.addEventListener("theme-change", (e) => {
+  updateCharts(e.detail.isLight);
+});
 
 /* =============================
    AQI CALC (INFO ONLY)
