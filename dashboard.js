@@ -42,7 +42,7 @@ function calculateAQI(pm25) {
 }
 
 /* =============================
-   AQI INFO (HANYA 3 STATUS)
+   AQI INFO (3 STATUS SAJA)
 ============================= */
 const aqiData = {
   BAIK: {
@@ -58,7 +58,7 @@ const aqiData = {
     kategori: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
     label: "Sedang",
     range: "AQI 51–100",
-    health: "Kualitas udara cukup. Terjadi peningkatan konsentrasi debu atau gas namun masih dapat diterima.",
+    health: "Kualitas udara masih dapat diterima, namun kelompok sensitif dapat mulai merasakan dampak ringan.",
     action: "Kelompok sensitif disarankan mengurangi aktivitas berat di dalam ruangan.",
     class: "aqi-moderate"
   },
@@ -82,7 +82,6 @@ onValue(ref(db, "sensor"), snap => {
   const d = snap.val();
   if (!d) return;
 
-  // ===== RAW DATA FROM ARDUINO =====
   const temp = d.temperature;
   const hum = d.humidity;
   const gas = d.gas;
@@ -110,7 +109,6 @@ onValue(ref(db, "sensor"), snap => {
   aqiStatus.textContent = infoAQI.label;
   aqiCard.className = "aqi-card " + infoAQI.class;
 
-  // ===== SAVE FOR TREND =====
   latestData = { gas, temp, hum, dust, status };
 });
 
@@ -163,14 +161,6 @@ setInterval(() => {
     trendChart.data.datasets.forEach(ds => ds.data.shift());
   }
 
-  const currentMax = trendChart.scales.x.max;
-  const isAtEdge = !currentMax || (now - currentMax) < 2000;
-
-  if (isAtEdge) {
-    trendChart.options.scales.x.min = now - 10000;
-    trendChart.options.scales.x.max = now;
-  }
-
   trendChart.update("none");
 }, 1000);
 
@@ -190,6 +180,7 @@ if (openBtn) {
 
     modalTitle.textContent = `Status Udara: ${info.label}`;
     modalHealth.innerHTML = `
+      <p><strong>Kategori AQI:</strong> ${info.kategori}</p>
       <p><strong>Rentang:</strong> ${info.range}</p>
       <p><strong>Dampak Kesehatan:</strong> ${info.health}</p>
       <p><strong>Anjuran:</strong> ${info.action}</p>
