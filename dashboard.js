@@ -46,24 +46,29 @@ function calculateAQI(pm25) {
 ============================= */
 const aqiData = {
   BAIK: {
+    kategori: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
     label: "Baik",
     range: "AQI 0–50",
-    health: "Kualitas udara sangat baik dan tidak menimbulkan risiko kesehatan.",
-    action: "Aman dan nyaman untuk seluruh aktivitas di ruangan.",
+    health: "Kualitas udara sangat baik. Konsentrasi gas dan debu rendah sehingga aman bagi kesehatan.",
+    action: "Aman dan nyaman untuk seluruh aktivitas di dalam ruangan.",
     class: "aqi-good"
   },
+
   SEDANG: {
+    kategori: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
     label: "Sedang",
     range: "AQI 51–100",
-    health: "Kualitas udara masih dapat diterima, namun kelompok sensitif dapat mulai merasakan dampak ringan.",
-    action: "Kelompok sensitif disarankan mengurangi aktivitas berat di ruangan.",
+    health: "Kualitas udara cukup. Terjadi peningkatan konsentrasi debu atau gas namun masih dapat diterima.",
+    action: "Kelompok sensitif disarankan mengurangi aktivitas berat di dalam ruangan.",
     class: "aqi-moderate"
   },
+
   BURUK: {
+    kategori: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
     label: "Buruk",
     range: "AQI > 100",
-    health: "Kualitas udara buruk dan berpotensi menimbulkan gangguan kesehatan.",
-    action: "Hindari aktivitas di ruangan dan gunakan masker bila diperlukan.",
+    health: "Kualitas udara buruk akibat tingginya konsentrasi gas dan debu yang berpotensi membahayakan kesehatan.",
+    action: "Disarankan menghindari aktivitas di dalam ruangan dan menggunakan masker bila diperlukan.",
     class: "aqi-unhealthy"
   }
 };
