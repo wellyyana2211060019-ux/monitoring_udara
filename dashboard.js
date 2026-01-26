@@ -15,7 +15,7 @@ const aqiStatus = document.getElementById("aqiStatus");
 const aqiCard = document.getElementById("aqiCard");
 
 /* =============================
-   AQI CALC (INFO ONLY)
+   AQI CALC (ANGKA SAJA)
 ============================= */
 function map(x, in_min, in_max, out_min, out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -42,6 +42,33 @@ function calculateAQI(pm25) {
 }
 
 /* =============================
+   AQI INFO (HANYA 3 STATUS)
+============================= */
+const aqiData = {
+  BAIK: {
+    label: "Baik",
+    range: "AQI 0–50",
+    health: "Kualitas udara sangat baik dan tidak menimbulkan risiko kesehatan.",
+    action: "Aman dan nyaman untuk seluruh aktivitas luar ruangan.",
+    class: "aqi-good"
+  },
+  SEDANG: {
+    label: "Sedang",
+    range: "AQI 51–100",
+    health: "Kualitas udara masih dapat diterima, namun kelompok sensitif dapat mulai merasakan dampak ringan.",
+    action: "Kelompok sensitif disarankan mengurangi aktivitas berat di luar ruangan.",
+    class: "aqi-moderate"
+  },
+  BURUK: {
+    label: "Buruk",
+    range: "AQI > 100",
+    health: "Kualitas udara buruk dan berpotensi menimbulkan gangguan kesehatan.",
+    action: "Hindari aktivitas luar ruangan dan gunakan masker bila diperlukan.",
+    class: "aqi-unhealthy"
+  }
+};
+
+/* =============================
    REALTIME SENSOR LISTENER
 ============================= */
 let latestData = { gas: 0, temp: 0, hum: 0, dust: 0, status: "BAIK" };
@@ -57,7 +84,7 @@ onValue(ref(db, "sensor"), snap => {
   const dust = d.dust;
   const status = String(d.status).trim().toUpperCase(); // SOURCE OF TRUTH
 
-  // ===== UI UPDATE =====
+  // ===== UI SENSOR =====
   tempValue.textContent = Number(temp).toFixed(1) + " °C";
   humValue.textContent = Number(hum).toFixed(1) + " %";
   gasValue.textContent = Number(gas).toFixed(1) + " PPM";
@@ -70,26 +97,20 @@ onValue(ref(db, "sensor"), snap => {
     BURUK: "status-bad"
   }[status] || "";
 
-  // ===== AQI (ANGKA DARI PM2.5, STATUS DARI ARDUINO) =====
+  // ===== AQI DASHBOARD =====
   const aqiNumber = calculateAQI(dust);
   aqiValue.textContent = aqiNumber;
-  aqiStatus.textContent = status;
 
-  const AQI_CLASS = {
-    BAIK: "aqi-good",
-    SEDANG: "aqi-moderate",
-    BURUK: "aqi-unhealthy"
-  };
-
-  aqiCard.className = "aqi-card";
-  aqiCard.classList.add(AQI_CLASS[status] || "aqi-good");
+  const infoAQI = aqiData[status] || aqiData.BAIK;
+  aqiStatus.textContent = infoAQI.label;
+  aqiCard.className = "aqi-card " + infoAQI.class;
 
   // ===== SAVE FOR TREND =====
   latestData = { gas, temp, hum, dust, status };
 });
 
 /* =============================
-   TREND CHART (REALTIME ONLY)
+   TREND CHART
 ============================= */
 const MAX_POINTS = 3600;
 const ctx = document.getElementById("trendChart").getContext("2d");
@@ -147,3 +168,36 @@ setInterval(() => {
 
   trendChart.update("none");
 }, 1000);
+
+/* =============================
+   POPUP "APA ARTINYA?"
+============================= */
+const modal = document.getElementById("aqiModal");
+const openBtn = document.getElementById("openModalBtn");
+const closeBtn = document.querySelector(".close-btn");
+const modalTitle = document.getElementById("modalTitle");
+const modalHealth = document.getElementById("modalHealth");
+
+if (openBtn) {
+  openBtn.onclick = () => {
+    const currentStatus = latestData.status || "BAIK";
+    const info = aqiData[currentStatus];
+
+    modalTitle.textContent = `Status Udara: ${info.label}`;
+    modalHealth.innerHTML = `
+      <p><strong>Rentang:</strong> ${info.range}</p>
+      <p><strong>Dampak Kesehatan:</strong> ${info.health}</p>
+      <p><strong>Anjuran:</strong> ${info.action}</p>
+    `;
+
+    modal.style.display = "block";
+  };
+}
+
+if (closeBtn) {
+  closeBtn.onclick = () => modal.style.display = "none";
+}
+
+window.onclick = e => {
+  if (e.target === modal) modal.style.display = "none";
+};
