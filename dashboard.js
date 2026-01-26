@@ -42,20 +42,20 @@ function calculateAQI(pm25) {
 }
 
 /* =============================
-   AQI INFO (3 STATUS SAJA)
+   AQI INFO (3 STATUS + PENJELASAN)
 ============================= */
 const aqiData = {
   BAIK: {
-    kategori: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
+    kategoriAQI: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
     label: "Baik",
     range: "AQI 0–50",
-    health: "Kualitas udara sangat baik. Konsentrasi gas dan debu rendah sehingga aman bagi kesehatan.",
+    health: "Kualitas udara sangat baik, konsentrasi gas dan debu rendah sehingga aman bagi kesehatan.",
     action: "Aman dan nyaman untuk seluruh aktivitas di dalam ruangan.",
     class: "aqi-good"
   },
 
   SEDANG: {
-    kategori: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
+    kategoriAQI: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
     label: "Sedang",
     range: "AQI 51–100",
     health: "Kualitas udara masih dapat diterima, namun kelompok sensitif dapat mulai merasakan dampak ringan.",
@@ -64,11 +64,11 @@ const aqiData = {
   },
 
   BURUK: {
-    kategori: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
+    kategoriAQI: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
     label: "Buruk",
     range: "AQI > 100",
     health: "Kualitas udara buruk akibat tingginya konsentrasi gas dan debu yang berpotensi membahayakan kesehatan.",
-    action: "Disarankan menghindari aktivitas di dalam ruangan dan menggunakan masker bila diperlukan.",
+    action: "Disarankan menghindari aktivitas di dalam ruangan dan menggunakan masker.",
     class: "aqi-unhealthy"
   }
 };
@@ -86,9 +86,8 @@ onValue(ref(db, "sensor"), snap => {
   const hum = d.humidity;
   const gas = d.gas;
   const dust = d.dust;
-  const status = String(d.status).trim().toUpperCase(); // SOURCE OF TRUTH
+  const status = String(d.status).trim().toUpperCase();
 
-  // ===== UI SENSOR =====
   tempValue.textContent = Number(temp).toFixed(1) + " °C";
   humValue.textContent = Number(hum).toFixed(1) + " %";
   gasValue.textContent = Number(gas).toFixed(1) + " PPM";
@@ -101,7 +100,6 @@ onValue(ref(db, "sensor"), snap => {
     BURUK: "status-bad"
   }[status] || "";
 
-  // ===== AQI DASHBOARD =====
   const aqiNumber = calculateAQI(dust);
   aqiValue.textContent = aqiNumber;
 
@@ -113,74 +111,22 @@ onValue(ref(db, "sensor"), snap => {
 });
 
 /* =============================
-   TREND CHART
-============================= */
-const MAX_POINTS = 3600;
-const ctx = document.getElementById("trendChart").getContext("2d");
-
-const trendChart = new Chart(ctx, {
-  type: "line",
-  data: {
-    labels: [],
-    datasets: [
-      { label: "Gas (PPM)", data: [], borderColor: "#22c55e", tension: 0.4 },
-      { label: "Temp (°C)", data: [], borderColor: "#ef4444", tension: 0.4 },
-      { label: "Hum (%)", data: [], borderColor: "#38bdf8", tension: 0.4 },
-      { label: "Dust (µg/m³)", data: [], borderColor: "#a78bfa", tension: 0.4 }
-    ]
-  },
-  options: {
-    responsive: true,
-    animation: false,
-    scales: {
-      y: { beginAtZero: true },
-      x: {
-        type: "time",
-        time: { unit: "second" },
-        ticks: { maxTicksLimit: 10 }
-      }
-    }
-  }
-});
-
-/* =============================
-   PUSH DATA EVERY 1 SECOND
-============================= */
-setInterval(() => {
-  const t = new Date();
-  const now = t.getTime();
-
-  trendChart.data.labels.push(t);
-  trendChart.data.datasets[0].data.push(latestData.gas);
-  trendChart.data.datasets[1].data.push(latestData.temp);
-  trendChart.data.datasets[2].data.push(latestData.hum);
-  trendChart.data.datasets[3].data.push(latestData.dust);
-
-  if (trendChart.data.labels.length > MAX_POINTS) {
-    trendChart.data.labels.shift();
-    trendChart.data.datasets.forEach(ds => ds.data.shift());
-  }
-
-  trendChart.update("none");
-}, 1000);
-
-/* =============================
    POPUP "APA ARTINYA?"
 ============================= */
 const modal = document.getElementById("aqiModal");
 const openBtn = document.getElementById("openModalBtn");
 const closeBtn = document.querySelector(".close-btn");
 const modalTitle = document.getElementById("modalTitle");
-const modalHealth = document.getElementById("modalHealth");
+const modalContent = document.getElementById("modalHealth");
 
 if (openBtn) {
   openBtn.onclick = () => {
-    const currentStatus = latestData.status || "BAIK";
-    const info = aqiData[currentStatus];
+    const status = latestData.status || "BAIK";
+    const info = aqiData[status];
 
     modalTitle.textContent = `Status Udara: ${info.label}`;
-    modalHealth.innerHTML = `
-      <p><strong>Kategori AQI:</strong> ${info.kategori}</p>
+    modalContent.innerHTML = `
+      <p><strong>Kategori AQI:</strong> ${info.kategoriAQI}</p>
       <p><strong>Rentang:</strong> ${info.range}</p>
       <p><strong>Dampak Kesehatan:</strong> ${info.health}</p>
       <p><strong>Anjuran:</strong> ${info.action}</p>
