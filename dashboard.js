@@ -49,21 +49,21 @@ const aqiData = {
     label: "Baik",
     range: "AQI 0–50",
     health: "Kualitas udara sangat baik dan tidak menimbulkan risiko kesehatan.",
-    action: "Aman dan nyaman untuk seluruh aktivitas luar ruangan.",
+    action: "Aman dan nyaman untuk seluruh aktivitas di ruangan.",
     class: "aqi-good"
   },
   SEDANG: {
     label: "Sedang",
     range: "AQI 51–100",
     health: "Kualitas udara masih dapat diterima, namun kelompok sensitif dapat mulai merasakan dampak ringan.",
-    action: "Kelompok sensitif disarankan mengurangi aktivitas berat di luar ruangan.",
+    action: "Kelompok sensitif disarankan mengurangi aktivitas berat di ruangan.",
     class: "aqi-moderate"
   },
   BURUK: {
     label: "Buruk",
     range: "AQI > 100",
     health: "Kualitas udara buruk dan berpotensi menimbulkan gangguan kesehatan.",
-    action: "Hindari aktivitas luar ruangan dan gunakan masker bila diperlukan.",
+    action: "Hindari aktivitas di ruangan dan gunakan masker bila diperlukan.",
     class: "aqi-unhealthy"
   }
 };
