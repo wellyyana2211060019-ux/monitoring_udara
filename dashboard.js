@@ -49,7 +49,7 @@ function calculateAQI(pm25) {
 const aqiData = {
   BAIK: {
     label: "Baik",
-    kategori: "Indikator Kualitas Udara (Non-AQI)",
+    kategori: "Indikator Kualitas Udara",
     range: `
       PM2.5 ≤ 50 µg/m³<br>
       Gas ≤ 5 ppm
@@ -62,10 +62,10 @@ const aqiData = {
 
   SEDANG: {
     label: "Sedang",
-    kategori: "Indikator Kualitas Udara (Non-AQI)",
+    kategori: "Indikator Kualitas Udara",
     range: `
       PM2.5 51–100 µg/m³<br>
-      atau Gas 6–10 ppm
+      Gas 6–10 ppm
     `,
     health: "Kualitas udara masih dapat diterima, namun kelompok sensitif dapat merasakan efek ringan.",
     action: "Kelompok sensitif disarankan mengurangi aktivitas berat.",
@@ -75,10 +75,10 @@ const aqiData = {
 
   BURUK: {
     label: "Buruk",
-    kategori: "Indikator Kualitas Udara (Non-AQI)",
+    kategori: "Indikator Kualitas Udara",
     range: `
       PM2.5 > 100 µg/m³<br>
-      atau Gas > 10 ppm
+      Gas > 10 ppm
     `,
     health: "Kualitas udara buruk akibat tingginya konsentrasi debu halus dan gas yang berbahaya.",
     action: "Disarankan membatasi aktivitas dan menggunakan masker.",
