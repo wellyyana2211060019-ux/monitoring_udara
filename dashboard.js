@@ -197,22 +197,44 @@ if (ctx) {
         }
       ]
     },
-    options: {
-      responsive: true,
-      animation: false,
-      scales: {
-        x: {
-          type: "time",
-          time: { unit: "second" },
-          ticks: { maxTicksLimit: 10 }
-        },
-        y: {
-          beginAtZero: true
-        }
+   options: {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: false,
+  parsing: false,
+
+  scales: {
+    x: {
+      type: "time",
+      time: {
+        unit: "second",
+        tooltipFormat: "HH:mm:ss"
+      },
+      ticks: { maxTicksLimit: 10 }
+    },
+    y: {
+      beginAtZero: true
+    }
+  },
+
+  plugins: {
+    legend: { display: true },
+
+    zoom: {
+      pan: {
+        enabled: true,
+        mode: "x",
+        modifierKey: "ctrl"
+      },
+      zoom: {
+        wheel: { enabled: true },
+        pinch: { enabled: true },
+        mode: "x"
       }
     }
-  });
+  }
 }
+
 
 /* =============================
    UPDATE CHART REALTIME
