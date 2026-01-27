@@ -22,67 +22,43 @@ function map(x, in_min, in_max, out_min, out_max) {
 }
 
 function calculateAQI(pm25) {
-  let aqi = 0;
-
-  if (pm25 <= 12) {
-    aqi = map(pm25, 0, 12, 0, 50);
-  } else if (pm25 <= 35.4) {
-    aqi = map(pm25, 12.1, 35.4, 51, 100);
-  } else if (pm25 <= 55.4) {
-    aqi = map(pm25, 35.5, 55.4, 101, 150);
-  } else if (pm25 <= 150.4) {
-    aqi = map(pm25, 55.5, 150.4, 151, 200);
-  } else if (pm25 <= 250.4) {
-    aqi = map(pm25, 150.5, 250.4, 201, 300);
-  } else {
-    aqi = 500;
-  }
-
-  return Math.round(aqi);
+  if (pm25 <= 12) return Math.round(map(pm25, 0, 12, 0, 50));
+  if (pm25 <= 35.4) return Math.round(map(pm25, 12.1, 35.4, 51, 100));
+  if (pm25 <= 55.4) return Math.round(map(pm25, 35.5, 55.4, 101, 150));
+  if (pm25 <= 150.4) return Math.round(map(pm25, 55.5, 150.4, 151, 200));
+  if (pm25 <= 250.4) return Math.round(map(pm25, 150.5, 250.4, 201, 300));
+  return 500;
 }
 
 /* =============================
-   INDICATOR STATUS (DISESUAIKAN)
-   → BUKAN AQI RESMI
-   → BERDASARKAN AMBANG SENSOR
+   STATUS INDICATOR (NON AQI RESMI)
 ============================= */
 const aqiData = {
   BAIK: {
     label: "Baik",
     kategori: "Indikator Kualitas Udara",
-    range: `
-      PM2.5 ≤ 35 µg/m³<br>
-      Gas ≤ 5 ppm
-    `,
-    health: "Udara bersih, konsentrasi debu halus dan gas rendah sehingga aman bagi kesehatan.",
-    action: "Aman dan nyaman untuk seluruh aktivitas di dalam ruangan.",
-    reference: "WHO & US EPA – Indoor Air Quality Guidelines",
+    range: "PM2.5 ≤ 35 µg/m³<br>Gas ≤ 5 ppm",
+    health: "Udara bersih dan aman.",
+    action: "Aman untuk semua aktivitas.",
+    reference: "WHO & US EPA – Indoor Air Quality",
     class: "aqi-good"
   },
-
   SEDANG: {
     label: "Sedang",
     kategori: "Indikator Kualitas Udara",
-    range: `
-      PM2.5 36–75 µg/m³<br>
-      Gas 6–10 ppm
-    `,
-    health: "Kualitas udara masih dapat diterima, namun kelompok sensitif dapat merasakan efek ringan.",
-    action: "Kelompok sensitif disarankan mengurangi aktivitas berat.",
-    reference: "WHO & US EPA – Indoor Air Quality Guidelines",
+    range: "PM2.5 36–75 µg/m³<br>Gas 6–10 ppm",
+    health: "Kelompok sensitif dapat terdampak.",
+    action: "Kurangi aktivitas berat.",
+    reference: "WHO & US EPA – Indoor Air Quality",
     class: "aqi-moderate"
   },
-
   BURUK: {
     label: "Buruk",
     kategori: "Indikator Kualitas Udara",
-    range: `
-      PM2.5 > 75 µg/m³<br>
-      Gas > 10 ppm
-    `,
-    health: "Kualitas udara buruk akibat tingginya konsentrasi debu halus dan gas yang berbahaya.",
-    action: "Disarankan membatasi aktivitas dan menggunakan masker.",
-    reference: "WHO & US EPA – Indoor Air Quality Guidelines",
+    range: "PM2.5 > 75 µg/m³<br>Gas > 10 ppm",
+    health: "Berisiko bagi kesehatan.",
+    action: "Gunakan masker, batasi aktivitas.",
+    reference: "WHO & US EPA – Indoor Air Quality",
     class: "aqi-unhealthy"
   }
 };
@@ -96,16 +72,12 @@ onValue(ref(db, "sensor"), snap => {
   const d = snap.val();
   if (!d) return;
 
-  const temp = d.temperature;
-  const hum = d.humidity;
-  const gas = d.gas;
-  const dust = d.dust;
   const status = String(d.status).trim().toUpperCase();
 
-  tempValue.textContent = Number(temp).toFixed(1) + " °C";
-  humValue.textContent = Number(hum).toFixed(1) + " %";
-  gasValue.textContent = Number(gas).toFixed(1) + " PPM";
-  dustValue.textContent = Number(dust).toFixed(1) + " µg/m³";
+  tempValue.textContent = `${Number(d.temperature).toFixed(1)} °C`;
+  humValue.textContent = `${Number(d.humidity).toFixed(1)} %`;
+  gasValue.textContent = `${Number(d.gas).toFixed(1)} PPM`;
+  dustValue.textContent = `${Number(d.dust).toFixed(1)} µg/m³`;
 
   airStatus.textContent = status;
   airStatus.className = {
@@ -114,146 +86,72 @@ onValue(ref(db, "sensor"), snap => {
     BURUK: "status-bad"
   }[status] || "";
 
-  const aqiNumber = calculateAQI(dust);
-  aqiValue.textContent = aqiNumber;
+  aqiValue.textContent = calculateAQI(d.dust);
 
-  const infoAQI = aqiData[status] || aqiData.BAIK;
-  aqiStatus.textContent = infoAQI.label;
-  aqiCard.className = "aqi-card " + infoAQI.class;
+  const info = aqiData[status] || aqiData.BAIK;
+  aqiStatus.textContent = info.label;
+  aqiCard.className = `aqi-card ${info.class}`;
 
-  latestData = { gas, temp, hum, dust, status };
+  latestData = {
+    gas: Number(d.gas),
+    temp: Number(d.temperature),
+    hum: Number(d.humidity),
+    dust: Number(d.dust),
+    status
+  };
 });
 
 /* =============================
-   POPUP "APA ARTINYA?"
-============================= */
-const modal = document.getElementById("aqiModal");
-const openBtn = document.getElementById("openModalBtn");
-const closeBtn = document.querySelector(".close-btn");
-const modalTitle = document.getElementById("modalTitle");
-const modalContent = document.getElementById("modalHealth");
-
-if (openBtn) {
-  openBtn.onclick = () => {
-    const status = latestData.status || "BAIK";
-    const info = aqiData[status];
-
-    modalTitle.textContent = `Status Udara: ${info.label}`;
-    modalContent.innerHTML = `
-      <p><strong>Kategori:</strong> ${info.kategori}</p>
-      <p><strong>Rentang Parameter:</strong><br>${info.range}</p>
-      <p><strong>Dampak Kesehatan:</strong><br>${info.health}</p>
-      <p><strong>Anjuran:</strong><br>${info.action}</p>
-      <hr>
-      <small><strong>Referensi:</strong> ${info.reference}</small>
-    `;
-
-    modal.style.display = "block";
-  };
-}
-
-if (closeBtn) {
-  closeBtn.onclick = () => modal.style.display = "none";
-}
-
-window.onclick = e => {
-  if (e.target === modal) modal.style.display = "none";
-};
-/* =============================
    TREND CHART (DASHBOARD)
 ============================= */
-const ctx = document.getElementById("trendChart");
+const canvas = document.getElementById("trendChart");
 let trendChart = null;
 
-if (ctx) {
-  trendChart = new Chart(ctx, {
+if (canvas) {
+  trendChart = new Chart(canvas, {
     type: "line",
     data: {
-      labels: [],
       datasets: [
-        {
-          label: "Gas (PPM)",
-          data: [],
-          borderColor: "#22c55e",
-          tension: 0.4
-        },
-        {
-          label: "Temperature (°C)",
-          data: [],
-          borderColor: "#ef4444",
-          tension: 0.4
-        },
-        {
-          label: "Humidity (%)",
-          data: [],
-          borderColor: "#38bdf8",
-          tension: 0.4
-        },
-        {
-          label: "Dust (µg/m³)",
-          data: [],
-          borderColor: "#a78bfa",
-          tension: 0.4
-        }
+        { label: "Gas (PPM)", data: [], borderColor: "#22c55e", tension: 0.3 },
+        { label: "Temperature (°C)", data: [], borderColor: "#ef4444", tension: 0.3 },
+        { label: "Humidity (%)", data: [], borderColor: "#38bdf8", tension: 0.3 },
+        { label: "Dust (µg/m³)", data: [], borderColor: "#a78bfa", tension: 0.3 }
       ]
     },
-   options: {
-  responsive: true,
-  maintainAspectRatio: false,
-  animation: false,
-  parsing: false,
-
-  scales: {
-    x: {
-      type: "time",
-      time: {
-        unit: "second",
-        tooltipFormat: "HH:mm:ss"
+    options: {
+      responsive: true,
+      animation: false,
+      parsing: false,
+      scales: {
+        x: { type: "time", time: { tooltipFormat: "HH:mm:ss" } },
+        y: { beginAtZero: true }
       },
-      ticks: { maxTicksLimit: 10 }
-    },
-    y: {
-      beginAtZero: true
-    }
-  },
-
-  plugins: {
-    legend: { display: true },
-
-    zoom: {
-      pan: {
-        enabled: true,
-        mode: "x",
-        modifierKey: "ctrl"
-      },
-      zoom: {
-        wheel: { enabled: true },
-        pinch: { enabled: true },
-        mode: "x"
+      plugins: {
+        zoom: {
+          pan: { enabled: true, mode: "x", modifierKey: "ctrl" },
+          zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" }
+        }
       }
     }
-  }
+  });
 }
 
-
 /* =============================
-   UPDATE CHART REALTIME
+   REALTIME UPDATE (STABIL)
 ============================= */
 setInterval(() => {
   if (!trendChart) return;
 
-  const now = new Date();
+  const t = new Date();
 
-  trendChart.data.labels.push(now);
-  trendChart.data.datasets[0].data.push(latestData.gas);
-  trendChart.data.datasets[1].data.push(latestData.temp);
-  trendChart.data.datasets[2].data.push(latestData.hum);
-  trendChart.data.datasets[3].data.push(latestData.dust);
+  trendChart.data.datasets[0].data.push({ x: t, y: latestData.gas });
+  trendChart.data.datasets[1].data.push({ x: t, y: latestData.temp });
+  trendChart.data.datasets[2].data.push({ x: t, y: latestData.hum });
+  trendChart.data.datasets[3].data.push({ x: t, y: latestData.dust });
 
-  if (trendChart.data.labels.length > 60) {
-    trendChart.data.labels.shift();
-    trendChart.data.datasets.forEach(ds => ds.data.shift());
-  }
+  trendChart.data.datasets.forEach(ds => {
+    if (ds.data.length > 60) ds.data.shift();
+  });
 
   trendChart.update("none");
 }, 1000);
