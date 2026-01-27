@@ -311,14 +311,4 @@ window.selectSensor = sensor => {
   UI.render();
 };
 
-/* =============================
-   INIT
-============================= */
-UI.init();
-y: {
-  beginAtZero: true,
-  title: {
-    display: true,
-    text: State.currentSensor === "gas" ? "Gas (PPM estimasi)" : ""
-  }
-}
+
