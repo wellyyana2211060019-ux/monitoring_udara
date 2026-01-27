@@ -8,11 +8,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { db } from "./config.js";
 
-/* ==========================================
-   HISTORY MODULE (READ ONLY)
-   ========================================== */
-
-
 /* =============================
    CONFIG
 ============================= */
@@ -152,6 +147,7 @@ const ChartService = {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         animation: false,
         parsing: false,
         normalized: true,
@@ -160,7 +156,9 @@ const ChartService = {
             type: "time",
             time: {
               tooltipFormat: "dd MMM yyyy HH:mm:ss",
-              displayFormats: { minute: "HH:mm" }
+               displayFormats: {
+          hour: "HH:mm",
+          day: "dd MMM"
             }
           },
           y: { beginAtZero: true }
@@ -169,7 +167,11 @@ const ChartService = {
           legend: { display: true },
           zoom: {
             pan: { enabled: true, mode: "x" },
-            zoom: { wheel: { enabled: true }, mode: "x" }
+            zoom: {
+        wheel: { enabled: true },
+        pinch: { enabled: true },
+        mode: "x"
+      }
           }
         }
       }
