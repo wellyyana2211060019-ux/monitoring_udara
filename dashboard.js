@@ -42,33 +42,47 @@ function calculateAQI(pm25) {
 }
 
 /* =============================
-   AQI INFO (3 STATUS + PENJELASAN)
+   INDICATOR STATUS (DISESUAIKAN)
+   → BUKAN AQI RESMI
+   → BERDASARKAN AMBANG SENSOR
 ============================= */
 const aqiData = {
   BAIK: {
-    kategoriAQI: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
     label: "Baik",
-    range: "AQI 0–50",
-    health: "Kualitas udara sangat baik, konsentrasi gas dan debu rendah sehingga aman bagi kesehatan.",
+    kategori: "Indikator Kualitas Udara (Non-AQI)",
+    range: `
+      PM2.5 ≤ 50 µg/m³<br>
+      Gas ≤ 5 ppm
+    `,
+    health: "Udara bersih, konsentrasi debu halus dan gas rendah sehingga aman bagi kesehatan.",
     action: "Aman dan nyaman untuk seluruh aktivitas di dalam ruangan.",
+    reference: "WHO & US EPA – Indoor Air Quality Guidelines",
     class: "aqi-good"
   },
 
   SEDANG: {
-    kategoriAQI: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
     label: "Sedang",
-    range: "AQI 51–100",
-    health: "Kualitas udara masih dapat diterima, namun kelompok sensitif dapat mulai merasakan dampak ringan.",
-    action: "Kelompok sensitif disarankan mengurangi aktivitas berat di dalam ruangan.",
+    kategori: "Indikator Kualitas Udara (Non-AQI)",
+    range: `
+      PM2.5 51–100 µg/m³<br>
+      atau Gas 6–10 ppm
+    `,
+    health: "Kualitas udara masih dapat diterima, namun kelompok sensitif dapat merasakan efek ringan.",
+    action: "Kelompok sensitif disarankan mengurangi aktivitas berat.",
+    reference: "WHO & US EPA – Indoor Air Quality Guidelines",
     class: "aqi-moderate"
   },
 
   BURUK: {
-    kategoriAQI: "Baik (AQI 0–50) → Sedang (AQI 51–100) → Buruk (AQI > 100)",
     label: "Buruk",
-    range: "AQI > 100",
-    health: "Kualitas udara buruk akibat tingginya konsentrasi gas dan debu yang berpotensi membahayakan kesehatan.",
-    action: "Disarankan menghindari aktivitas di dalam ruangan dan menggunakan masker.",
+    kategori: "Indikator Kualitas Udara (Non-AQI)",
+    range: `
+      PM2.5 > 100 µg/m³<br>
+      atau Gas > 10 ppm
+    `,
+    health: "Kualitas udara buruk akibat tingginya konsentrasi debu halus dan gas yang berbahaya.",
+    action: "Disarankan membatasi aktivitas dan menggunakan masker.",
+    reference: "WHO & US EPA – Indoor Air Quality Guidelines",
     class: "aqi-unhealthy"
   }
 };
@@ -126,10 +140,12 @@ if (openBtn) {
 
     modalTitle.textContent = `Status Udara: ${info.label}`;
     modalContent.innerHTML = `
-      <p><strong>Kategori AQI:</strong> ${info.kategoriAQI}</p>
-      <p><strong>Rentang:</strong> ${info.range}</p>
-      <p><strong>Dampak Kesehatan:</strong> ${info.health}</p>
-      <p><strong>Anjuran:</strong> ${info.action}</p>
+      <p><strong>Kategori:</strong> ${info.kategori}</p>
+      <p><strong>Rentang Parameter:</strong><br>${info.range}</p>
+      <p><strong>Dampak Kesehatan:</strong><br>${info.health}</p>
+      <p><strong>Anjuran:</strong><br>${info.action}</p>
+      <hr>
+      <small><strong>Referensi:</strong> ${info.reference}</small>
     `;
 
     modal.style.display = "block";
