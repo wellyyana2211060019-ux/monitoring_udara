@@ -51,7 +51,7 @@ const aqiData = {
     label: "Baik",
     kategori: "Indikator Kualitas Udara",
     range: `
-      PM2.5 ≤ 50 µg/m³<br>
+      PM2.5 ≤ 35 µg/m³<br>
       Gas ≤ 5 ppm
     `,
     health: "Udara bersih, konsentrasi debu halus dan gas rendah sehingga aman bagi kesehatan.",
@@ -64,7 +64,7 @@ const aqiData = {
     label: "Sedang",
     kategori: "Indikator Kualitas Udara",
     range: `
-      PM2.5 51–100 µg/m³<br>
+      PM2.5 36–75 µg/m³<br>
       Gas 6–10 ppm
     `,
     health: "Kualitas udara masih dapat diterima, namun kelompok sensitif dapat merasakan efek ringan.",
@@ -77,7 +77,7 @@ const aqiData = {
     label: "Buruk",
     kategori: "Indikator Kualitas Udara",
     range: `
-      PM2.5 > 100 µg/m³<br>
+      PM2.5 > 75 µg/m³<br>
       Gas > 10 ppm
     `,
     health: "Kualitas udara buruk akibat tingginya konsentrasi debu halus dan gas yang berbahaya.",
