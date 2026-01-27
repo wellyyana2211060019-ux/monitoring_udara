@@ -159,3 +159,79 @@ if (closeBtn) {
 window.onclick = e => {
   if (e.target === modal) modal.style.display = "none";
 };
+/* =============================
+   TREND CHART (DASHBOARD)
+============================= */
+const ctx = document.getElementById("trendChart");
+let trendChart = null;
+
+if (ctx) {
+  trendChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: "Gas (PPM)",
+          data: [],
+          borderColor: "#22c55e",
+          tension: 0.4
+        },
+        {
+          label: "Temperature (°C)",
+          data: [],
+          borderColor: "#ef4444",
+          tension: 0.4
+        },
+        {
+          label: "Humidity (%)",
+          data: [],
+          borderColor: "#38bdf8",
+          tension: 0.4
+        },
+        {
+          label: "Dust (µg/m³)",
+          data: [],
+          borderColor: "#a78bfa",
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: false,
+      scales: {
+        x: {
+          type: "time",
+          time: { unit: "second" },
+          ticks: { maxTicksLimit: 10 }
+        },
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+/* =============================
+   UPDATE CHART REALTIME
+============================= */
+setInterval(() => {
+  if (!trendChart) return;
+
+  const now = new Date();
+
+  trendChart.data.labels.push(now);
+  trendChart.data.datasets[0].data.push(latestData.gas);
+  trendChart.data.datasets[1].data.push(latestData.temp);
+  trendChart.data.datasets[2].data.push(latestData.hum);
+  trendChart.data.datasets[3].data.push(latestData.dust);
+
+  if (trendChart.data.labels.length > 60) {
+    trendChart.data.labels.shift();
+    trendChart.data.datasets.forEach(ds => ds.data.shift());
+  }
+
+  trendChart.update("none");
+}, 1000);
