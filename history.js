@@ -32,6 +32,21 @@ const State = {
   chart: null,
   unsubscribe: null
 };
+/* =============================
+   GAS SCALING (SAMAKAN DENGAN DASHBOARD)
+============================= */
+function normalizeGas(rawGas) {
+  gas: normalizeGas(d.gas),
+
+  // Jika data masih ADC mentah (ribuan)
+  if (gas > 100) {
+    // Skala ke rentang 0–10 PPM (estimasi)
+    return gas / 100;
+  }
+
+  // Jika sudah PPM
+  return gas;
+}
 
 /* =============================
    DATA SERVICE (READ ONLY)
@@ -300,3 +315,10 @@ window.selectSensor = sensor => {
    INIT
 ============================= */
 UI.init();
+y: {
+  beginAtZero: true,
+  title: {
+    display: true,
+    text: State.currentSensor === "gas" ? "Gas (PPM estimasi)" : ""
+  }
+}
