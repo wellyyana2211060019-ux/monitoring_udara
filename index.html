@@ -186,6 +186,9 @@
 
         document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
         link.classList.add("active");
+
+        // Dispatch updated event for history chart resize
+        window.dispatchEvent(new CustomEvent('tab-change', { detail: { target } }));
       });
     });
   </script>
