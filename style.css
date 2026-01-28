@@ -240,6 +240,16 @@ canvas {
   border-radius: 16px;
   border: 1px solid var(--card-border);
   margin-top: 2rem;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.chart-container {
+  position: relative;
+  height: 60vh;
+  min-height: 400px;
+  width: 100%;
 }
 
 /* History */
