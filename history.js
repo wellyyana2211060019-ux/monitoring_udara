@@ -246,12 +246,13 @@ const UI = {
       ExportService.downloadExcel(State.rawData);
     });
 
-    // Listen for tab changes to re-render chart when becoming visible
+    // Listen for tab changes
     window.addEventListener("tab-change", (e) => {
       if (e.detail.target === "page-history") {
-        setTimeout(() => {
+        // Use requestAnimationFrame to ensure layout is applied before rendering
+        requestAnimationFrame(() => {
           this.render();
-        }, 100);
+        });
       }
     });
   },
@@ -286,6 +287,13 @@ const UI = {
   },
 
   render() {
+    // CRITICAL FIX: Do not render if the history page is hidden. 
+    // Chart.js breaks if rendered in a hidden container (0 height).
+    const historyPage = document.getElementById("page-history");
+    if (!historyPage || !historyPage.classList.contains("active")) {
+      return;
+    }
+
     const data = DataService.prepare(State.rawData, State.currentSensor);
     ChartService.render(data);
   }
