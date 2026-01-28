@@ -245,6 +245,14 @@ canvas {
   display: block;
 }
 
+#historyChart {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  display: block !important;
+  box-sizing: border-box !important;
+}
+
 .chart-container {
   position: relative;
   height: 60vh;
