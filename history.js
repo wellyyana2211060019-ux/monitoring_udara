@@ -15,7 +15,7 @@ const CONFIG = {
   chartId: "historyChart",
   chartMaxPoints: 2000,
   minYearMs: 1704067200000,
-  minSensorValue: 0.01
+  minSensorValue: 0 // 🔧 sebelumnya 0.01 (menyebabkan grafik segaris)
 };
 
 /* =============================
@@ -36,14 +36,12 @@ const DataService = {
   fetchRange(startMs, endMs, cb) {
     if (State.unsubscribe) State.unsubscribe();
 
-    const startSec = String(Math.floor(startMs / 1000));
-    const endSec = String(Math.floor(endMs / 1000));
-
+    // 🔧 SAMAKAN KEY FIREBASE & DATA CHART (MILIDETIK)
     const q = query(
       ref(db, "history"),
       orderByKey(),
-      startAt(startSec),
-      endAt(endSec)
+      startAt(String(startMs)),
+      endAt(String(endMs))
     );
 
     State.unsubscribe = onValue(q, snap => {
@@ -61,12 +59,6 @@ const DataService = {
       let ts = Number(child.key);
       if (ts < 10000000000) ts *= 1000;
       if (ts < CONFIG.minYearMs) return;
-
-      const dateObj = new Date(ts);
-      // Filter out January 22nd, 2026 data as requested
-      if (dateObj.getDate() === 22 && dateObj.getMonth() === 0 && dateObj.getFullYear() === 2026) {
-        return;
-      }
 
       rows.push({
         ts,
@@ -130,25 +122,27 @@ const ChartService = {
         animation: false,
         parsing: false,
         scales: {
+          // 🔧 PAKSA LINEAR → GRAFIK TIDAK SEGARIS
           x: {
-            type: "time",
-            time: {
-              tooltipFormat: "dd MMM yyyy HH:mm:ss",
-              displayFormats: {
-                hour: "HH:mm",
-                day: "dd MMM"
+            type: "linear",
+            ticks: {
+              callback: value => {
+                const d = new Date(value);
+                return d.toLocaleDateString("id-ID", {
+                  day: "2-digit",
+                  month: "short"
+                });
               }
             }
           },
-          y: { beginAtZero: true }
+          y: {
+            beginAtZero: true
+          }
         },
         plugins: {
           legend: { display: true },
           zoom: {
-            pan: {
-              enabled: true,
-              mode: "x"
-            },
+            pan: { enabled: true, mode: "x" },
             zoom: {
               wheel: { enabled: true },
               pinch: { enabled: true },
@@ -179,21 +173,19 @@ const ExportService = {
 
     data.forEach(row => {
       const date = new Date(row.ts).toISOString();
-      const values = [
+      csvRows.push([
         date,
         row.temperature,
         row.humidity,
         row.gas,
         row.dust
-      ];
-      csvRows.push(values.join(","));
+      ].join(","));
     });
 
     const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
-    const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "sensor_data.csv");
+    link.href = encodeURI(csvContent);
+    link.download = "sensor_data.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -205,7 +197,6 @@ const ExportService = {
       return;
     }
 
-    // Prepare data for SheetJS
     const wsData = data.map(row => ({
       Timestamp: new Date(row.ts).toLocaleString(),
       Temperature: row.temperature,
@@ -217,7 +208,6 @@ const ExportService = {
     const ws = XLSX.utils.json_to_sheet(wsData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sensor Data");
-
     XLSX.writeFile(wb, "sensor_data.xlsx");
   }
 };
@@ -234,17 +224,14 @@ const UI = {
   },
 
   initListeners() {
-    document.getElementById("historyFilterBtn")?.addEventListener("click", () => {
-      this.load();
-    });
+    document.getElementById("historyFilterBtn")
+      ?.addEventListener("click", () => this.load());
 
-    document.getElementById("exportCsvBtn")?.addEventListener("click", () => {
-      ExportService.downloadCSV(State.rawData);
-    });
+    document.getElementById("exportCsvBtn")
+      ?.addEventListener("click", () => ExportService.downloadCSV(State.rawData));
 
-    document.getElementById("exportExcelBtn")?.addEventListener("click", () => {
-      ExportService.downloadExcel(State.rawData);
-    });
+    document.getElementById("exportExcelBtn")
+      ?.addEventListener("click", () => ExportService.downloadExcel(State.rawData));
   },
 
   setDefaultDate() {
@@ -278,6 +265,13 @@ const UI = {
 
   render() {
     const data = DataService.prepare(State.rawData, State.currentSensor);
+
+    // 🔧 JIKA DATA KOSONG → JANGAN TAMPIL SEGARIS
+    if (!data.length) {
+      if (State.chart) State.chart.destroy();
+      return;
+    }
+
     ChartService.render(data);
   }
 };
@@ -288,16 +282,20 @@ const UI = {
 window.selectSensor = sensor => {
   State.currentSensor = sensor;
 
-  // Update active card style
-  document.querySelectorAll("#page-history .card").forEach(c => c.classList.remove("active-card"));
+  document.querySelectorAll("#page-history .card")
+    .forEach(c => c.classList.remove("active-card"));
+
   const map = {
-    'temperature': 'hist-temp',
-    'humidity': 'hist-humidity',
-    'gas': 'hist-gas',
-    'dust': 'hist-dust'
+    temperature: "hist-temp",
+    humidity: "hist-humidity",
+    gas: "hist-gas",
+    dust: "hist-dust"
   };
-  const activeId = map[sensor];
-  if (activeId) document.getElementById(activeId)?.classList.add("active-card");
+
+  if (map[sensor]) {
+    document.getElementById(map[sensor])
+      ?.classList.add("active-card");
+  }
 
   UI.render();
 };
