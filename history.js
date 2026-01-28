@@ -249,10 +249,10 @@ const UI = {
     // Listen for tab changes
     window.addEventListener("tab-change", (e) => {
       if (e.detail.target === "page-history") {
-        // Use requestAnimationFrame to ensure layout is applied before rendering
-        requestAnimationFrame(() => {
+        // Wait for fadeIn animation (approx 300-500ms) to complete
+        setTimeout(() => {
           this.render();
-        });
+        }, 400);
       }
     });
   },
@@ -295,6 +295,24 @@ const UI = {
     }
 
     const data = DataService.prepare(State.rawData, State.currentSensor);
+
+    // Check if data is empty
+    const container = document.querySelector(".chart-container");
+    if (!data || data.length === 0) {
+      if (State.chart) State.chart.destroy();
+      container.innerHTML = `<div style="display:flex;justify-content:center;align-items:center;height:100%;color:var(--text-secondary);">No data available for this range.</div>`;
+      // restore canvas for next time ? simpler to just re-add it if needed, 
+      // but let's just use an overlay or alert.
+      // Better approach: Keep canvas, just show message.
+      // Actually, if we destroy chart, canvas is blank.
+      return;
+    }
+
+    // Ensure canvas exists (if we removed it previously)
+    if (!document.getElementById(CONFIG.chartId)) {
+      container.innerHTML = `<canvas id="${CONFIG.chartId}"></canvas>`;
+    }
+
     ChartService.render(data);
   }
 };
