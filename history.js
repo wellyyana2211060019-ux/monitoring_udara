@@ -2,7 +2,9 @@ import {
   ref,
   onValue,
   query,
-  orderByKey
+  orderByKey,
+  startAt,
+  endAt
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { db } from "./config.js";
 
@@ -13,7 +15,7 @@ const CONFIG = {
   chartId: "historyChart",
   chartMaxPoints: 2000,
   minYearMs: 1704067200000,
-  minSensorValue: 0
+  minSensorValue: 0.01
 };
 
 /* =============================
@@ -23,9 +25,7 @@ const State = {
   currentSensor: "gas",
   rawData: [],
   chart: null,
-  unsubscribe: null,
-  startRange: 0,
-  endRange: 0
+  unsubscribe: null
 };
 
 /* =============================
@@ -33,13 +33,17 @@ const State = {
 ============================= */
 const DataService = {
 
-  fetchAll(cb) {
+  fetchRange(startMs, endMs, cb) {
     if (State.unsubscribe) State.unsubscribe();
 
-    // ✅ KEMBALIKAN KE QUERY AMAN (SEPERTI DULU)
+    const startSec = String(Math.floor(startMs / 1000));
+    const endSec = String(Math.floor(endMs / 1000));
+
     const q = query(
       ref(db, "history"),
-      orderByKey()
+      orderByKey(),
+      startAt(startSec),
+      endAt(endSec)
     );
 
     State.unsubscribe = onValue(q, snap => {
@@ -55,13 +59,14 @@ const DataService = {
       if (!d) return;
 
       let ts = Number(child.key);
-
-      // ✅ AMAN UNTUK DETIK / MILIDETIK
       if (ts < 10000000000) ts *= 1000;
       if (ts < CONFIG.minYearMs) return;
 
-      // ✅ FILTER RANGE TANGGAL DI SINI
-      if (ts < State.startRange || ts > State.endRange) return;
+      const dateObj = new Date(ts);
+      // Filter out January 22nd, 2026 data as requested
+      if (dateObj.getDate() === 22 && dateObj.getMonth() === 0 && dateObj.getFullYear() === 2026) {
+        return;
+      }
 
       rows.push({
         ts,
@@ -77,6 +82,7 @@ const DataService = {
 
   prepare(list, sensor) {
     const data = list
+      .filter(r => r[sensor] >= CONFIG.minSensorValue)
       .map(r => ({ x: r.ts, y: r[sensor] }))
       .sort((a, b) => a.x - b.x);
 
@@ -121,27 +127,98 @@ const ChartService = {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        parsing: false,
         animation: false,
+        parsing: false,
         scales: {
           x: {
-            type: "linear",
-            ticks: {
-              callback: v => {
-                const d = new Date(v);
-                return d.toLocaleDateString("id-ID", {
-                  day: "2-digit",
-                  month: "short"
-                });
+            type: "time",
+            time: {
+              tooltipFormat: "dd MMM yyyy HH:mm:ss",
+              displayFormats: {
+                hour: "HH:mm",
+                day: "dd MMM"
               }
             }
           },
-          y: {
-            beginAtZero: true
+          y: { beginAtZero: true }
+        },
+        plugins: {
+          legend: { display: true },
+          zoom: {
+            pan: {
+              enabled: true,
+              mode: "x"
+            },
+            zoom: {
+              wheel: { enabled: true },
+              pinch: { enabled: true },
+              mode: "x"
+            }
           }
         }
       }
     });
+
+    window.historyChartInstance = State.chart;
+  }
+};
+
+/* =============================
+   EXPORT SERVICE
+============================= */
+const ExportService = {
+
+  downloadCSV(data) {
+    if (!data || data.length === 0) {
+      alert("No data to export!");
+      return;
+    }
+
+    const headers = ["Timestamp", "Temperature (C)", "Humidity (%)", "Gas (PPM)", "Dust (ug/m3)"];
+    const csvRows = [headers.join(",")];
+
+    data.forEach(row => {
+      const date = new Date(row.ts).toISOString();
+      const values = [
+        date,
+        row.temperature,
+        row.humidity,
+        row.gas,
+        row.dust
+      ];
+      csvRows.push(values.join(","));
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "sensor_data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  },
+
+  downloadExcel(data) {
+    if (!data || data.length === 0) {
+      alert("No data to export!");
+      return;
+    }
+
+    // Prepare data for SheetJS
+    const wsData = data.map(row => ({
+      Timestamp: new Date(row.ts).toLocaleString(),
+      Temperature: row.temperature,
+      Humidity: row.humidity,
+      Gas: row.gas,
+      Dust: row.dust
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sensor Data");
+
+    XLSX.writeFile(wb, "sensor_data.xlsx");
   }
 };
 
@@ -157,8 +234,17 @@ const UI = {
   },
 
   initListeners() {
-    document.getElementById("historyFilterBtn")
-      ?.addEventListener("click", () => this.load());
+    document.getElementById("historyFilterBtn")?.addEventListener("click", () => {
+      this.load();
+    });
+
+    document.getElementById("exportCsvBtn")?.addEventListener("click", () => {
+      ExportService.downloadCSV(State.rawData);
+    });
+
+    document.getElementById("exportExcelBtn")?.addEventListener("click", () => {
+      ExportService.downloadExcel(State.rawData);
+    });
   },
 
   setDefaultDate() {
@@ -176,13 +262,15 @@ const UI = {
     const sVal = document.getElementById("historyStartDate").value;
     const eVal = document.getElementById("historyEndDate").value;
 
-    if (!sVal || !eVal) return;
+    if (!sVal || !eVal) {
+      alert("Please select start and end dates.");
+      return;
+    }
 
-    // ✅ SIMPAN RANGE UNTUK FILTER
-    State.startRange = new Date(sVal).setHours(0, 0, 0, 0);
-    State.endRange   = new Date(eVal).setHours(23, 59, 59, 999);
+    const s = new Date(sVal).setHours(0, 0, 0, 0);
+    const e = new Date(eVal).setHours(23, 59, 59, 999);
 
-    DataService.fetchAll(data => {
+    DataService.fetchRange(s, e, data => {
       State.rawData = data;
       this.render();
     });
@@ -190,12 +278,6 @@ const UI = {
 
   render() {
     const data = DataService.prepare(State.rawData, State.currentSensor);
-
-    if (!data.length) {
-      if (State.chart) State.chart.destroy();
-      return;
-    }
-
     ChartService.render(data);
   }
 };
@@ -206,20 +288,16 @@ const UI = {
 window.selectSensor = sensor => {
   State.currentSensor = sensor;
 
-  document.querySelectorAll("#page-history .card")
-    .forEach(c => c.classList.remove("active-card"));
-
+  // Update active card style
+  document.querySelectorAll("#page-history .card").forEach(c => c.classList.remove("active-card"));
   const map = {
-    temperature: "hist-temp",
-    humidity: "hist-humidity",
-    gas: "hist-gas",
-    dust: "hist-dust"
+    'temperature': 'hist-temp',
+    'humidity': 'hist-humidity',
+    'gas': 'hist-gas',
+    'dust': 'hist-dust'
   };
-
-  if (map[sensor]) {
-    document.getElementById(map[sensor])
-      ?.classList.add("active-card");
-  }
+  const activeId = map[sensor];
+  if (activeId) document.getElementById(activeId)?.classList.add("active-card");
 
   UI.render();
 };
