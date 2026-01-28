@@ -22,7 +22,7 @@ const CONFIG = {
    STATE
 ============================= */
 const State = {
-  currentSensor: "gas",
+  currentSensor: "temperature",
   rawData: [],
   chart: null,
   unsubscribe: null
@@ -244,6 +244,15 @@ const UI = {
 
     document.getElementById("exportExcelBtn")?.addEventListener("click", () => {
       ExportService.downloadExcel(State.rawData);
+    });
+
+    // Listen for tab changes to re-render chart when becoming visible
+    window.addEventListener("tab-change", (e) => {
+      if (e.detail.target === "page-history") {
+        setTimeout(() => {
+          this.render();
+        }, 100);
+      }
     });
   },
 
