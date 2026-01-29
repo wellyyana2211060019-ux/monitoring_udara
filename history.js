@@ -208,10 +208,10 @@ const ExportService = {
     // Prepare data for SheetJS
     const wsData = data.map(row => ({
       Timestamp: new Date(row.ts).toLocaleString(),
-      Temperature (C): row.temperature,
-      Humidity (%): row.humidity,
-      Gas (PPM): row.gas,
-      Dust (ug/m3): row.dust
+      Temperature: row.temperature,
+      Humidity: row.humidity,
+      Gas: row.gas,
+      Dust: row.dust
     }));
 
     const ws = XLSX.utils.json_to_sheet(wsData);
