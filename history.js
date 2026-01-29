@@ -174,7 +174,7 @@ const ExportService = {
       return;
     }
 
-    const headers = ["Timestamp", "Temperature (C)", "Humidity (%)", "Gas (PPM)", "Dust (ug/m3)"];
+    const headers = ["Times", "Temperature (C)", "Humidity (%)", "Gas (PPM)", "Dust (ug/m3)"];
     const csvRows = [headers.join(",")];
 
     data.forEach(row => {
@@ -207,11 +207,11 @@ const ExportService = {
 
     // Prepare data for SheetJS
     const wsData = data.map(row => ({
-      Timestamp: new Date(row.ts).toLocaleString(),
-      Temperature: row.temperature,
-      Humidity: row.humidity,
-      Gas: row.gas,
-      Dust: row.dust
+      Times: new Date(row.ts).toLocaleString(),
+      Temperature (C): row.temperature,
+      Humidity (%): row.humidity,
+      Gas (PPM): row.gas,
+      Dust (ug/m3): row.dust
     }));
 
     const ws = XLSX.utils.json_to_sheet(wsData);
